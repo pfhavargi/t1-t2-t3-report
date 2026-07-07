@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>T1 → T2 → T3 Escalation & Performance Report</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: #1A1919;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: #F5F5F4;
+    padding: 32px 24px 64px;
+  }
+  .container { max-width: 1180px; margin: 0 auto; }
+  .header { margin-bottom: 32px; }
+  .eyebrow {
+    color: #AC75FF;
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin: 0 0 8px;
+  }
+  h1 { font-size: 28px; font-weight: 500; margin: 0 0 6px; color: #F5F5F4; }
+  .subtitle { color: #9A9998; font-size: 14px; margin: 0; }
+
+  .kpi-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin: 28px 0 36px;
+  }
+  .kpi-card {
+    background: #292928;
+    border-radius: 12px;
+    padding: 18px 20px;
+  }
+  .kpi-label { color: #9A9998; font-size: 12px; margin: 0 0 8px; text-transform: uppercase; letter-spacing: 0.03em; }
+  .kpi-value { font-size: 30px; font-weight: 500; margin: 0; color: #F5F5F4; }
+  .kpi-sub { color: #797777; font-size: 12px; margin: 6px 0 0; }
+
+  .section { margin-bottom: 44px; }
+  .section-title { font-size: 18px; font-weight: 500; margin: 0 0 4px; color: #F5F5F4; }
+  .section-desc { color: #9A9998; font-size: 13px; margin: 0 0 18px; }
+
+  .card {
+    background: #292928;
+    border-radius: 12px;
+    padding: 20px 24px;
+  }
+
+  .chart-wrap { position: relative; width: 100%; }
+
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  @media (max-width: 900px) { .two-col { grid-template-columns: 1fr; } .kpi-row { grid-template-columns: repeat(2, 1fr); } }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 12px; }
+  th, td { text-align: left; padding: 9px 10px; border-bottom: 1px solid #393838; }
+  th { color: #9A9998; font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing: 0.03em; }
+  td { color: #F5F5F4; }
+  td.num, th.num { text-align: right; }
+  tr.total-row td { font-weight: 500; border-top: 1px solid #525152; color: #AC75FF; }
+  .badge {
+    display: inline-block;
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 20px;
+    background: #654A8C;
+    color: #EEEDFE;
+  }
+
+  .footnote { color: #484747; font-size: 11px; margin-top: 10px; line-height: 1.5; }
+  .source-caption { text-align: center; color: #484747; font-size: 11px; margin-top: 40px; border-top: 1px solid #292928; padding-top: 16px; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <p class="eyebrow">T1 Support Performance</p>
+    <h1>T1 → T2 → T3 Escalation & Resolution Report</h1>
+    <p class="subtitle">Week of Jun 28 – Jul 4, 2026 &nbsp;·&nbsp; with 6-week trailing trend</p>
+  </div>
+
+  <!-- KPI ROW -->
+  <div class="kpi-row">
+    <div class="kpi-card">
+      <p class="kpi-label">Total tickets</p>
+      <p class="kpi-value">126</p>
+      <p class="kpi-sub">Created last week</p>
+    </div>
+    <div class="kpi-card">
+      <p class="kpi-label">Resolved by T1</p>
+      <p class="kpi-value">108 <span style="font-size:16px;color:#899CFA;">85.7%</span></p>
+      <p class="kpi-sub">Never left T1</p>
+    </div>
+    <div class="kpi-card">
+      <p class="kpi-label">Escalated to T2</p>
+      <p class="kpi-value">18 <span style="font-size:16px;color:#899CFA;">14.3%</span></p>
+      <p class="kpi-sub">Of total volume</p>
+    </div>
+    <div class="kpi-card">
+      <p class="kpi-label">Escalated to T3</p>
+      <p class="kpi-value">8 <span style="font-size:16px;color:#899CFA;">44.4%</span></p>
+      <p class="kpi-sub">Of T2 escalations</p>
+    </div>
+  </div>
+
+  <!-- OVERALL DISTRIBUTION + T1 SOLVE RATE -->
+  <div class="section">
+    <p class="section-title">Overall ticket distribution</p>
+    <p class="section-desc">Where last week's 126 tickets ended up across the T1 → T2 → T3 chain</p>
+    <div class="two-col">
+      <div class="card">
+        <div class="chart-wrap" style="height:260px;">
+          <canvas id="flowChart" role="img" aria-label="Bar chart: 126 total tickets, 108 resolved by T1 (85.7%), 18 escalated to T2 (14.3%), 8 escalated to T3 (6.3%)"></canvas>
+        </div>
+      </div>
+      <div class="card">
+        <div class="chart-wrap" style="height:260px;">
+          <canvas id="solveChart" role="img" aria-label="Horizontal bar chart: of 108 tickets T1 handled end to end, 62 solved or closed, 46 still open"></canvas>
+        </div>
+        <p class="footnote">T1 solve rate: 62 of 108 tickets T1 owned end-to-end are Solved/Closed (57.4%). The remaining 46 are still New/Open/Pending/On Hold.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- T1 AGENT BREAKDOWN -->
+  <div class="section">
+    <p class="section-title">T1 agents: solved vs escalated to T2</p>
+    <p class="section-desc">Out of what each agent personally handled (solved + escalated only; open cases not yet resolved are excluded)</p>
+    <div class="two-col">
+      <div class="card">
+        <div class="chart-wrap" style="height:320px;">
+          <canvas id="t1AgentChart" role="img" aria-label="Stacked bar chart of T1 agents showing solved vs escalated counts"></canvas>
+        </div>
+      </div>
+      <div class="card">
+        <table>
+          <tr><th>Agent</th><th class="num">Solved</th><th class="num">Escalated</th><th class="num">Total</th><th class="num">Solve %</th></tr>
+          <tr><td>Nesara Nagaraju</td><td class="num">11</td><td class="num">6</td><td class="num">17</td><td class="num">64.7%</td></tr>
+          <tr><td>Karthik Haralayya</td><td class="num">9</td><td class="num">5</td><td class="num">14</td><td class="num">64.3%</td></tr>
+          <tr><td>Manjunath N</td><td class="num">10</td><td class="num">1</td><td class="num">11</td><td class="num">90.9%</td></tr>
+          <tr><td>Amruth Lakshman</td><td class="num">5</td><td class="num">1</td><td class="num">6</td><td class="num">83.3%</td></tr>
+          <tr><td>Nidhi Mahankali</td><td class="num">4</td><td class="num">2</td><td class="num">6</td><td class="num">66.7%</td></tr>
+          <tr><td>Vinodakumara A</td><td class="num">3</td><td class="num">2</td><td class="num">5</td><td class="num">60.0%</td></tr>
+          <tr><td>Manoj GH</td><td class="num">2</td><td class="num">1</td><td class="num">3</td><td class="num">66.7%</td></tr>
+          <tr><td>Sobiya Khan</td><td class="num">4</td><td class="num">0</td><td class="num">4</td><td class="num">100%</td></tr>
+          <tr><td>Abdul Rahaman</td><td class="num">2</td><td class="num">0</td><td class="num">2</td><td class="num">100%</td></tr>
+          <tr><td>Lavanya TU</td><td class="num">2</td><td class="num">0</td><td class="num">2</td><td class="num">100%</td></tr>
+          <tr><td>Anmol Tanwer</td><td class="num">1</td><td class="num">0</td><td class="num">1</td><td class="num">100%</td></tr>
+          <tr><td>Vishakha K</td><td class="num">1</td><td class="num">0</td><td class="num">1</td><td class="num">100%</td></tr>
+        </table>
+        <p class="footnote">9 additional cases landed in a "Spam Cases" system queue (auto-filtered, not agent-solved) — excluded from this table.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- T2 AGENT BREAKDOWN -->
+  <div class="section">
+    <p class="section-title">T2 agents: solved vs escalated to T3</p>
+    <p class="section-desc">Of the 18 tickets escalated from T1, how each T2 agent resolved theirs</p>
+    <div class="two-col">
+      <div class="card">
+        <div class="chart-wrap" style="height:260px;">
+          <canvas id="t2AgentChart" role="img" aria-label="Stacked bar chart of T2 agents showing solved, escalated to T3, and still open counts"></canvas>
+        </div>
+      </div>
+      <div class="card">
+        <table>
+          <tr><th>Agent</th><th class="num">Received</th><th class="num">Solved</th><th class="num">→ T3</th><th class="num">Open</th></tr>
+          <tr><td>Selwyn Moses</td><td class="num">6</td><td class="num">0</td><td class="num">4</td><td class="num">2</td></tr>
+          <tr><td>Priyanka Dubey</td><td class="num">4</td><td class="num">1</td><td class="num">1</td><td class="num">2</td></tr>
+          <tr><td>Kunal Chavan</td><td class="num">4</td><td class="num">0</td><td class="num">2</td><td class="num">2</td></tr>
+          <tr><td>Chetan Salvi *</td><td class="num">2</td><td class="num">0</td><td class="num">0</td><td class="num">2</td></tr>
+          <tr><td>Abhay Kumar</td><td class="num">2</td><td class="num">1</td><td class="num">1</td><td class="num">0</td></tr>
+          <tr class="total-row"><td>Total</td><td class="num">18</td><td class="num">2</td><td class="num">8</td><td class="num">8</td></tr>
+        </table>
+        <p class="footnote">* Chetan Salvi's 2 cases are effectively parked in the CDP Team queue rather than actively held by him. Also note: the T2→T3 transition in CaseHistory is logged under a "JIRA Integration" system user, not a named agent — the "→ T3" column reflects who owned the case at the moment it escalated, not who manually triggered it.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- TREND -->
+  <div class="section">
+    <p class="section-title">6-week trend: volume & escalation rate</p>
+    <p class="section-desc">Escalation rate = (T2 + T3 current ownership) ÷ total tickets for that week</p>
+    <div class="card">
+      <div class="chart-wrap" style="height:300px;">
+        <canvas id="trendChart" role="img" aria-label="Combo chart over 6 weeks: bar for weekly ticket volume, line for escalation rate percentage, showing a decline from 29.7% to 14.3%"></canvas>
+      </div>
+    </div>
+    <p class="footnote">Escalation rate has roughly halved over 6 weeks — from 29.7% (week of May 24) to 14.3% (last week) — while volume held steady at 108–128 tickets/week. Weekly figures use current tier ownership as a proxy for escalation state; validated against last week's detailed CaseHistory data, which matched exactly.</p>
+  </div>
+
+  <p class="source-caption">Source: Salesforce Case + CaseHistory (Team_Responsible__c, Owner). Generated from data as of Jul 7, 2026.</p>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+Chart.defaults.font.family = "Inter, sans-serif";
+Chart.defaults.color = '#797777';
+
+const tooltipStyle = { backgroundColor: '#1A1919', titleColor: '#9A9998', bodyColor: '#F5F5F4', borderColor: '#393838', borderWidth: 1 };
+const gridStyle = { color: 'rgba(255,255,255,0.06)' };
+
+function valueLabelPlugin(horizontal, stacked) {
+  return {
+    id: 'valueLabels_' + Math.random(),
+    afterDatasetsDraw(chart) {
+      if (stacked) return; // skip auto-labels for stacked (handled separately if needed)
+      const {ctx} = chart;
+      chart.data.datasets[0].data.forEach((val, i) => {
+        const meta = chart.getDatasetMeta(0).data[i];
+        if (!meta) return;
+        ctx.save();
+        ctx.fillStyle = '#F5F5F4';
+        ctx.font = '500 12px Inter';
+        if (horizontal) {
+          ctx.textAlign = 'left';
+          ctx.fillText(val, meta.x + 8, meta.y + 4);
+        } else {
+          ctx.textAlign = 'center';
+          ctx.fillText(val, meta.x, meta.y - 8);
+        }
+        ctx.restore();
+      });
+    }
+  };
+}
+
+// 1. Overall flow chart
+new Chart(document.getElementById('flowChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Total (100%)', 'T1 (85.7%)', 'To T2 (14.3%)', 'To T3 (6.3%)'],
+    datasets: [{ data: [126, 108, 18, 8], backgroundColor: ['#654A8C', '#AC75FF', '#899CFA', '#B0F7BA'], borderRadius: 4, maxBarThickness: 50 }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false }, tooltip: tooltipStyle },
+    scales: {
+      x: { ticks: { font: { size: 11 } }, grid: { display: false } },
+      y: { ticks: { font: { size: 11 } }, grid: gridStyle, beginAtZero: true }
+    }
+  },
+  plugins: [valueLabelPlugin(false, false)]
+});
+
+// 2. T1 solve rate
+new Chart(document.getElementById('solveChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Solved / Closed', 'Still open'],
+    datasets: [{ data: [62, 46], backgroundColor: ['#AC75FF', '#525B89'], borderRadius: 4, maxBarThickness: 40 }]
+  },
+  options: {
+    indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false }, tooltip: tooltipStyle },
+    scales: {
+      x: { ticks: { font: { size: 11 } }, grid: gridStyle, beginAtZero: true },
+      y: { ticks: { font: { size: 12 } }, grid: { display: false } }
+    }
+  },
+  plugins: [valueLabelPlugin(true, false)]
+});
+
+// 3. T1 agent stacked bar
+const t1Labels = ['Nesara Nagaraju','Karthik Haralayya','Manjunath N','Amruth Lakshman','Nidhi Mahankali','Vinodakumara A','Manoj GH','Sobiya Khan','Abdul Rahaman','Lavanya TU','Anmol Tanwer','Vishakha K'];
+const t1Solved = [11,9,10,5,4,3,2,4,2,2,1,1];
+const t1Escalated = [6,5,1,1,2,2,1,0,0,0,0,0];
+new Chart(document.getElementById('t1AgentChart'), {
+  type: 'bar',
+  data: {
+    labels: t1Labels,
+    datasets: [
+      { label: 'Solved', data: t1Solved, backgroundColor: '#AC75FF', borderRadius: 3, maxBarThickness: 18 },
+      { label: 'Escalated to T2', data: t1Escalated, backgroundColor: '#654A8C', borderRadius: 3, maxBarThickness: 18 }
+    ]
+  },
+  options: {
+    indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { display: true, position: 'top', labels: { color: '#9A9998', font: { size: 11 }, boxWidth: 10, boxHeight: 10 } },
+      tooltip: tooltipStyle
+    },
+    scales: {
+      x: { stacked: true, ticks: { font: { size: 11 } }, grid: gridStyle, beginAtZero: true },
+      y: { stacked: true, ticks: { font: { size: 11 } }, grid: { display: false } }
+    }
+  }
+});
+
+// 4. T2 agent stacked bar
+const t2Labels = ['Selwyn Moses','Priyanka Dubey','Kunal Chavan','Chetan Salvi','Abhay Kumar'];
+const t2Solved = [0,1,0,0,1];
+const t2Escalated = [4,1,2,0,1];
+const t2Open = [2,2,2,2,0];
+new Chart(document.getElementById('t2AgentChart'), {
+  type: 'bar',
+  data: {
+    labels: t2Labels,
+    datasets: [
+      { label: 'Solved', data: t2Solved, backgroundColor: '#AC75FF', borderRadius: 3, maxBarThickness: 34 },
+      { label: 'Escalated to T3', data: t2Escalated, backgroundColor: '#654A8C', borderRadius: 3, maxBarThickness: 34 },
+      { label: 'Still open', data: t2Open, backgroundColor: '#525B89', borderRadius: 3, maxBarThickness: 34 }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { display: true, position: 'top', labels: { color: '#9A9998', font: { size: 11 }, boxWidth: 10, boxHeight: 10 } },
+      tooltip: tooltipStyle
+    },
+    scales: {
+      x: { stacked: true, ticks: { font: { size: 11 } }, grid: { display: false } },
+      y: { stacked: true, ticks: { font: { size: 11 } }, grid: gridStyle, beginAtZero: true }
+    }
+  }
+});
+
+// 5. 6-week trend combo chart
+const weekLabels = ['May 24','May 31','Jun 07','Jun 14','Jun 21','Jun 28'];
+const volumes = [128, 108, 121, 113, 108, 126];
+const escRates = [29.7, 22.2, 20.7, 15.9, 20.4, 14.3];
+new Chart(document.getElementById('trendChart'), {
+  data: {
+    labels: weekLabels,
+    datasets: [
+      { type: 'bar', label: 'Weekly volume', data: volumes, backgroundColor: '#654A8C', borderRadius: 4, maxBarThickness: 44, yAxisID: 'y' },
+      { type: 'line', label: 'Escalation rate (%)', data: escRates, borderColor: '#B0F7BA', backgroundColor: '#B0F7BA', borderWidth: 2, pointRadius: 4, pointBackgroundColor: '#B0F7BA', tension: 0.3, yAxisID: 'y1' }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { display: true, labels: { color: '#9A9998', font: { size: 11 }, boxWidth: 10, boxHeight: 10 } },
+      tooltip: tooltipStyle
+    },
+    scales: {
+      x: { ticks: { font: { size: 11 } }, grid: { display: false } },
+      y: { position: 'left', ticks: { font: { size: 11 } }, grid: gridStyle, title: { display: true, text: 'Tickets', color: '#797777', font: { size: 10 } } },
+      y1: { position: 'right', ticks: { font: { size: 11 }, callback: (v) => v + '%' }, grid: { display: false }, title: { display: true, text: 'Escalation %', color: '#797777', font: { size: 10 } } }
+    }
+  }
+});
+</script>
+</body>
+</html>
