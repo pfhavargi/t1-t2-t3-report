@@ -40,6 +40,14 @@
   }
   select#weekSelect:focus { outline: 2px solid #AC75FF; }
 
+  .view-toggle { display: flex; background: #292928; border-radius: 8px; padding: 3px; border: 1px solid #393838; }
+  .view-btn {
+    background: transparent; color: #9A9998; border: none; border-radius: 6px;
+    padding: 7px 16px; font-size: 13px; font-weight: 500; font-family: inherit;
+    cursor: pointer; transition: all 0.15s;
+  }
+  .view-btn.active { background: #AC75FF; color: #1A1919; }
+
   .kpi-row {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -100,8 +108,15 @@
       <p class="subtitle" id="subtitleText">Week of Jun 28 – Jul 4, 2026</p>
     </div>
     <div class="week-picker">
-      <label for="weekSelect">Select week</label>
+      <label>View by</label>
+      <div class="view-toggle">
+        <button id="viewWeekBtn" class="view-btn active">Week</button>
+        <button id="viewMonthBtn" class="view-btn">Month</button>
+        <button id="viewQuarterBtn" class="view-btn">Quarter</button>
+      </div>
       <select id="weekSelect"></select>
+      <select id="monthSelect" style="display:none;"></select>
+      <select id="quarterSelect" style="display:none;"></select>
     </div>
   </div>
 
@@ -247,7 +262,40 @@ const weekData = {
 };
 const weekOrder = ['jun28','jun21','jun14','jun07','may31','may24'];
 
-// ---------- populate dropdown ----------
+// ---------- MONTHLY DATA (exact, from Salesforce aggregate queries) ----------
+const monthData = {
+  jul26: { label: "July 2026 (partial, in progress)", subtitle: "July 2026 (partial — month in progress)",
+    total: 140, t1: 124, t2: 8, t3: 8, t1Pct: 88.6, t2Pct: 5.7, t3Pct: 5.7,
+    t1Solved: 59, t1Open: 65, t1SolvedPct: 47.6, hasAgentDetail: false, partial: true },
+  jun26: { label: "June 2026", subtitle: "June 2026",
+    total: 497, t1: 404, t2: 28, t3: 65, t1Pct: 81.3, t2Pct: 5.6, t3Pct: 13.1,
+    t1Solved: 348, t1Open: 56, t1SolvedPct: 86.1, hasAgentDetail: false },
+  may26: { label: "May 2026", subtitle: "May 2026",
+    total: 516, t1: 367, t2: 39, t3: 110, t1Pct: 71.1, t2Pct: 7.6, t3Pct: 21.3,
+    t1Solved: 362, t1Open: 5, t1SolvedPct: 98.6, hasAgentDetail: false },
+  apr26: { label: "April 2026", subtitle: "April 2026",
+    total: 478, t1: 325, t2: 41, t3: 112, t1Pct: 68.0, t2Pct: 8.6, t3Pct: 23.4,
+    t1Solved: 320, t1Open: 5, t1SolvedPct: 98.5, hasAgentDetail: false },
+  mar26: { label: "March 2026", subtitle: "March 2026",
+    total: 511, t1: 341, t2: 32, t3: 138, t1Pct: 66.7, t2Pct: 6.3, t3Pct: 27.0,
+    t1Solved: 333, t1Open: 8, t1SolvedPct: 97.7, hasAgentDetail: false }
+};
+const monthOrder = ['jul26','jun26','may26','apr26','mar26'];
+
+// ---------- QUARTERLY DATA ----------
+// Fiscal year: Feb - Jan. Q1 = Feb-Apr, Q2 = May-Jul, Q3 = Aug-Oct, Q4 = Nov-Jan.
+const quarterData = {
+  q2fy26: { label: "Q2 FY26 — May-Jul 2026 (in progress)", subtitle: "Q2 FY26: May – Jul 2026 (in progress)",
+    total: 1153, t1: 895, t2: 75, t3: 183, t1Pct: 77.6, t2Pct: 6.5, t3Pct: 15.9,
+    t1Solved: 769, t1Open: 126, t1SolvedPct: 85.9, hasAgentDetail: false, partial: true },
+  q1fy26: { label: "Q1 FY26 — Feb-Apr 2026", subtitle: "Q1 FY26: Feb – Apr 2026",
+    total: 1512, t1: 1010, t2: 113, t3: 389, t1Pct: 66.8, t2Pct: 7.5, t3Pct: 25.7,
+    t1Solved: 994, t1Open: 16, t1SolvedPct: 98.4, hasAgentDetail: false }
+};
+const quarterOrder = ['q2fy26','q1fy26'];
+let currentView = 'week'; // 'week', 'month', or 'quarter'
+
+// ---------- populate dropdowns ----------
 const sel = document.getElementById('weekSelect');
 weekOrder.forEach(key => {
   const opt = document.createElement('option');
@@ -255,6 +303,145 @@ weekOrder.forEach(key => {
   opt.textContent = weekData[key].label;
   sel.appendChild(opt);
 });
+
+const monthSel = document.getElementById('monthSelect');
+monthOrder.forEach(key => {
+  const opt = document.createElement('option');
+  opt.value = key;
+  opt.textContent = monthData[key].label;
+  monthSel.appendChild(opt);
+});
+
+const quarterSel = document.getElementById('quarterSelect');
+quarterOrder.forEach(key => {
+  const opt = document.createElement('option');
+  opt.value = key;
+  opt.textContent = quarterData[key].label;
+  quarterSel.appendChild(opt);
+});
+
+// ---------- toggle wiring ----------
+const viewWeekBtn = document.getElementById('viewWeekBtn');
+const viewMonthBtn = document.getElementById('viewMonthBtn');
+const viewQuarterBtn = document.getElementById('viewQuarterBtn');
+
+function setView(view) {
+  currentView = view;
+  viewWeekBtn.classList.toggle('active', view === 'week');
+  viewMonthBtn.classList.toggle('active', view === 'month');
+  viewQuarterBtn.classList.toggle('active', view === 'quarter');
+  sel.style.display = view === 'week' ? 'block' : 'none';
+  monthSel.style.display = view === 'month' ? 'block' : 'none';
+  quarterSel.style.display = view === 'quarter' ? 'block' : 'none';
+  if (view === 'week') {
+    document.getElementById('distDesc').textContent = 'Where tickets ended up across the T1 → T2 → T3 chain';
+    renderWeek(sel.value);
+  } else if (view === 'month') {
+    monthSel.value = monthOrder[0];
+    renderMonth(monthSel.value);
+  } else {
+    quarterSel.value = quarterOrder[0];
+    renderQuarter(quarterSel.value);
+  }
+}
+
+viewWeekBtn.addEventListener('click', () => setView('week'));
+viewMonthBtn.addEventListener('click', () => setView('month'));
+viewQuarterBtn.addEventListener('click', () => setView('quarter'));
+monthSel.addEventListener('change', (e) => renderMonth(e.target.value));
+quarterSel.addEventListener('change', (e) => renderQuarter(e.target.value));
+
+function renderQuarter(key) {
+  const d = quarterData[key];
+  document.getElementById('subtitleText').textContent = d.subtitle;
+  document.getElementById('distDesc').textContent = `Where ${d.total} tickets that quarter ended up across the T1 → T2 → T3 chain` + (d.partial ? ' — quarter still in progress, numbers will keep moving' : '');
+
+  document.getElementById('kpiRow').innerHTML = `
+    <div class="kpi-card">
+      <p class="kpi-label">Total tickets</p>
+      <p class="kpi-value">${d.total}</p>
+      <p class="kpi-sub">Created that quarter</p>
+    </div>
+    <div class="kpi-card">
+      <p class="kpi-label">Resolved by T1</p>
+      <p class="kpi-value">${d.t1} <span class="kpi-pct">${d.t1Pct}%</span></p>
+      <p class="kpi-sub">Never left T1</p>
+    </div>
+    <div class="kpi-card">
+      <p class="kpi-label">Escalated to T2</p>
+      <p class="kpi-value">${d.t2} <span class="kpi-pct">${d.t2Pct}%</span></p>
+      <p class="kpi-sub">Of total volume</p>
+    </div>
+    <div class="kpi-card">
+      <p class="kpi-label">Escalated to T3</p>
+      <p class="kpi-value">${d.t3} <span class="kpi-pct">${d.t3Pct}%</span></p>
+      <p class="kpi-sub">Of total volume</p>
+    </div>
+  `;
+
+  flowChart.data.labels = [`Total (100%)`, `T1 (${d.t1Pct}%)`, `To T2 (${d.t2Pct}%)`, `To T3 (${d.t3Pct}%)`];
+  flowChart.data.datasets[0].data = [d.total, d.t1, d.t2, d.t3];
+  flowChart.update();
+
+  solveChart.data.datasets[0].data = [d.t1Solved, d.t1Open];
+  solveChart.update();
+  document.getElementById('solveFootnote').textContent =
+    `T1 solve rate: ${d.t1Solved} of ${d.t1} tickets T1 owned end-to-end are Solved/Closed (${d.t1SolvedPct}%). The remaining ${d.t1Open} are still New/Open/Pending/On Hold.` +
+    (d.partial ? ' Note: this quarter is still in progress, so the open count is inflated relative to a completed quarter — not a real performance drop.' : '');
+
+  document.getElementById('t1AgentSection').style.display = 'none';
+  document.getElementById('t1AgentPlaceholder').style.display = 'block';
+  document.getElementById('t1AgentPlaceholder').textContent = 'Per-agent breakdown is only available in Week view for the most recent week. Ask for a quarterly agent-level pull if you need this rolled up by quarter.';
+  document.getElementById('t2AgentSection').style.display = 'none';
+  document.getElementById('t2AgentPlaceholder').style.display = 'block';
+  document.getElementById('t2AgentPlaceholder').textContent = 'Per-agent breakdown is only available in Week view for the most recent week. Ask for a quarterly agent-level pull if you need this rolled up by quarter.';
+}
+
+function renderMonth(key) {
+  const d = monthData[key];
+  document.getElementById('subtitleText').textContent = d.subtitle;
+  document.getElementById('distDesc').textContent = `Where ${d.total} tickets that month ended up across the T1 → T2 → T3 chain` + (d.partial ? ' — month still in progress, numbers will keep moving' : '');
+
+  document.getElementById('kpiRow').innerHTML = `
+    <div class="kpi-card">
+      <p class="kpi-label">Total tickets</p>
+      <p class="kpi-value">${d.total}</p>
+      <p class="kpi-sub">Created that month</p>
+    </div>
+    <div class="kpi-card">
+      <p class="kpi-label">Resolved by T1</p>
+      <p class="kpi-value">${d.t1} <span class="kpi-pct">${d.t1Pct}%</span></p>
+      <p class="kpi-sub">Never left T1</p>
+    </div>
+    <div class="kpi-card">
+      <p class="kpi-label">Escalated to T2</p>
+      <p class="kpi-value">${d.t2} <span class="kpi-pct">${d.t2Pct}%</span></p>
+      <p class="kpi-sub">Of total volume</p>
+    </div>
+    <div class="kpi-card">
+      <p class="kpi-label">Escalated to T3</p>
+      <p class="kpi-value">${d.t3} <span class="kpi-pct">${d.t3Pct}%</span></p>
+      <p class="kpi-sub">Of total volume</p>
+    </div>
+  `;
+
+  flowChart.data.labels = [`Total (100%)`, `T1 (${d.t1Pct}%)`, `To T2 (${d.t2Pct}%)`, `To T3 (${d.t3Pct}%)`];
+  flowChart.data.datasets[0].data = [d.total, d.t1, d.t2, d.t3];
+  flowChart.update();
+
+  solveChart.data.datasets[0].data = [d.t1Solved, d.t1Open];
+  solveChart.update();
+  document.getElementById('solveFootnote').textContent =
+    `T1 solve rate: ${d.t1Solved} of ${d.t1} tickets T1 owned end-to-end are Solved/Closed (${d.t1SolvedPct}%). The remaining ${d.t1Open} are still New/Open/Pending/On Hold.` +
+    (d.partial ? ' Note: this month is still in progress, so the open count is inflated relative to a completed month — not a real performance drop.' : '');
+
+  document.getElementById('t1AgentSection').style.display = 'none';
+  document.getElementById('t1AgentPlaceholder').style.display = 'block';
+  document.getElementById('t1AgentPlaceholder').textContent = 'Per-agent breakdown is only available in Week view for the most recent week. Ask for a monthly agent-level pull if you need this rolled up by month.';
+  document.getElementById('t2AgentSection').style.display = 'none';
+  document.getElementById('t2AgentPlaceholder').style.display = 'block';
+  document.getElementById('t2AgentPlaceholder').textContent = 'Per-agent breakdown is only available in Week view for the most recent week. Ask for a monthly agent-level pull if you need this rolled up by month.';
+}
 
 // ---------- chart instances ----------
 let flowChart, solveChart, t1AgentChart, t2AgentChart;
@@ -350,8 +537,10 @@ function renderWeek(key) {
   } else {
     t1Section.style.display = 'none';
     t1Placeholder.style.display = 'block';
+    t1Placeholder.textContent = 'Per-agent breakdown is only available for the most recent week. Ask for a historical pull if you need this for an earlier week.';
     t2Section.style.display = 'none';
     t2Placeholder.style.display = 'block';
+    t2Placeholder.textContent = 'Per-agent breakdown is only available for the most recent week. Ask for a historical pull if you need this for an earlier week.';
   }
 }
 
