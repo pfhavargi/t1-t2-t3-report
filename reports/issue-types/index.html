@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Issue Types Analysis</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: #1A1919;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: #F5F5F4;
+    padding: 32px 24px 64px;
+  }
+  .container { max-width: 1180px; margin: 0 auto; }
+  .header-row { display: flex; justify-content: space-between; align-items: flex-end; gap: 20px; flex-wrap: wrap; margin-bottom: 28px; }
+  .eyebrow { color: #AC75FF; font-size: 12px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; margin: 0 0 8px; }
+  h1 { font-size: 28px; font-weight: 500; margin: 0 0 6px; color: #F5F5F4; }
+  .subtitle { color: #9A9998; font-size: 14px; margin: 0; }
+
+  .view-picker { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
+  .view-picker label { color: #9A9998; font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; }
+  .view-toggle { display: flex; background: #292928; border-radius: 8px; padding: 3px; border: 1px solid #393838; }
+  .view-btn {
+    background: transparent; color: #9A9998; border: none; border-radius: 6px;
+    padding: 7px 16px; font-size: 13px; font-weight: 500; font-family: inherit;
+    cursor: pointer; transition: all 0.15s;
+  }
+  .view-btn.active { background: #AC75FF; color: #1A1919; }
+  select#periodSelect {
+    background: #292928; color: #F5F5F4; border: 1px solid #393838; border-radius: 8px;
+    padding: 10px 14px; font-size: 14px; font-family: inherit; min-width: 240px; cursor: pointer;
+  }
+  select#periodSelect:focus { outline: 2px solid #AC75FF; }
+
+  .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin: 0 0 32px; }
+  .kpi-card { background: #292928; border-radius: 12px; padding: 18px 20px; }
+  .kpi-label { color: #9A9998; font-size: 12px; margin: 0 0 8px; text-transform: uppercase; letter-spacing: 0.03em; }
+  .kpi-value { font-size: 26px; font-weight: 500; margin: 0; color: #F5F5F4; }
+  .kpi-pct { font-size: 15px; color: #899CFA; }
+  .kpi-sub { color: #797777; font-size: 12px; margin: 6px 0 0; }
+
+  .summary-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; margin: 0 0 28px; border-radius: 10px; overflow: hidden; border: 1px solid #E5E5EA22; }
+  .summary-card { padding: 16px 20px; text-align: center; }
+  .summary-card:nth-child(1), .summary-card:nth-child(2) { background: #E9E1F9; }
+  .summary-card:nth-child(3) { background: #FDF3D0; }
+  .summary-card:nth-child(4) { background: #DCEEDD; }
+  .summary-label { font-size: 13px; font-weight: 700; margin: 0 0 4px; color: #6B4FA0; }
+  .summary-value { font-size: 24px; font-weight: 800; margin: 0; color: #6B4FA0; }
+
+  .section-title { font-size: 18px; font-weight: 500; margin: 0 0 4px; color: #F5F5F4; }
+  .section-desc { color: #9A9998; font-size: 13px; margin: 0 0 18px; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; background: #292928; border-radius: 12px; overflow: hidden; }
+  thead th { background: #211F2E; color: #C9BEEF; text-align: left; padding: 12px 14px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.03em; font-weight: 600; }
+  thead th.center { text-align: center; }
+  tbody td { padding: 13px 14px; border-bottom: 1px solid #393838; vertical-align: top; color: #F5F5F4; }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody td.center { text-align: center; font-weight: 600; color: #AC75FF; }
+  .rank-badge {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 22px; height: 22px; border-radius: 50%; background: #654A8C; color: #F5F5F4;
+    font-size: 11px; font-weight: 700; margin-right: 8px;
+  }
+  .issue-name { font-weight: 600; color: #F5F5F4; }
+  .signals-text { color: #C4C3C2; font-size: 12.5px; line-height: 1.5; }
+  .customers-text { color: #9A9998; font-size: 12.5px; }
+
+  .footnote { color: #484747; font-size: 11px; margin-top: 14px; line-height: 1.6; }
+  .source-caption { text-align: center; color: #484747; font-size: 11px; margin-top: 40px; border-top: 1px solid #292928; padding-top: 16px; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header-row">
+    <div>
+      <p class="eyebrow">Support Signals</p>
+      <h1>Issue Types Analysis</h1>
+      <p class="subtitle" id="subtitleText">Top 5 issue types — Week of Jun 28 – Jul 4, 2026</p>
+    </div>
+    <div class="view-picker">
+      <label>View by</label>
+      <div class="view-toggle">
+        <button id="viewWeekBtn" class="view-btn active">Week</button>
+        <button id="viewMonthBtn" class="view-btn">Month</button>
+        <button id="viewQuarterBtn" class="view-btn">Quarter</button>
+      </div>
+      <select id="periodSelect"></select>
+    </div>
+  </div>
+
+  <div class="summary-row" id="summaryRow"></div>
+
+  <div class="kpi-row" id="kpiRow"></div>
+
+  <p class="section-title">Top 5 issue types</p>
+  <p class="section-desc" id="tableDesc">Ranked by case volume, closed cases only, Spam excluded. "Issue Type" = Microservices field.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Issue Type</th>
+        <th class="center">Cases</th>
+        <th class="center">% of Total</th>
+        <th>Customers Affected</th>
+        <th>Key Signals</th>
+      </tr>
+    </thead>
+    <tbody id="issueTableBody"></tbody>
+  </table>
+
+  <p class="footnote" id="methodologyNote"></p>
+
+  <p class="source-caption">Source: Salesforce Case (Microservices__c, IsClosed, Categories__c). Generated Jul 7, 2026.</p>
+
+</div>
+
+<script>
+// ---------- DATA ----------
+// hasDetail: true means Key Signals are drawn from actual case subject review for that period.
+// false means the pattern description is carried over from the closest period with detailed review
+// (same underlying issue type, consistent theme), not freshly sampled for that exact window.
+const periodData = {
+  week: {
+    label: "Week of Jun 28 – Jul 4, 2026",
+    subtitle: "Top 5 issue types — Week of Jun 28 – Jul 4, 2026",
+    total: 59,
+    topIssue: "CMS - UI",
+    topPct: 37.3,
+    issues: [
+      ["CMS - UI", 22, "37.3%", "19 customers", "Mostly UI bugs and blank/loading screens (\u201cSomething Went Wrong\u201d errors), Live Preview failures, and workflow/permission glitches. Several customers (Informa, Google, Academy Sports+Outdoors) hit near-identical blank-screen/timeout symptoms independently."],
+      ["AUTH", 11, "18.6%", "11 customers", "Entirely login/SSO/access problems \u2014 users unable to log in, SSO invitations stuck pending, accounts blocked after role changes. Every case is a different customer, suggesting a recurring onboarding friction point rather than one org's issue."],
+      ["Key Change Requests", 6, "10.2%", "6 customers", "All limit-increase requests \u2014 JSON RTE field size, asset folder depth, dashboard item limits. Customers are independently hitting the same handful of platform ceilings."],
+      ["Marketplace - Public Apps", 5, "8.5%", "4 customers", "Third-party app integration issues \u2014 Vimeo connector needing manual API key setup, Brightcove extension stuck loading, translations not returning, an app showing as unconfigured."],
+      ["CMS - CMA", 4, "6.8%", "4 customers", "Management API / content-model schema issues \u2014 broken references after model updates, release scheduling info disappearing post-deploy."]
+    ]
+  },
+  month: {
+    label: "June 2026",
+    subtitle: "Top 5 issue types — June 2026",
+    total: 375,
+    topIssue: "CMS - UI",
+    topPct: 37.3,
+    issues: [
+      ["CMS - UI", 140, "37.3%", "89 customers", "Same pattern as the weekly view, at much larger scale \u2014 UI bugs, blank/loading screens, Live Preview failures, taxonomy and localization glitches, workflow/permission bugs. The recurring \u201cSomething Went Wrong\u201d and blank-screen reports span unrelated customers (Follett, McKinsey, Janssen, Informa), pointing to intermittent platform stability rather than isolated bugs."],
+      ["AUTH", 48, "12.8%", "41 customers", "Overwhelmingly login/SSO/invitation-acceptance failures \u2014 users stuck \u201cPending\u201d after SSO invites, MFA/2FA codes not delivered, access blocked after role changes. Extremely consistent theme across dozens of unrelated customers \u2014 looks systemic, not one-off."],
+      ["Key Change Requests", 28, "7.5%", "24 customers", "Nearly all limit-increase requests \u2014 JSON RTE field size, content-type field count (400\u2192500), asset folder depth, reference limits, custom role limits, CMA rate limits. Customers are repeatedly hitting the same platform ceilings."],
+      ["CMS - CDA(Rest)", 26, "6.9%", "24 customers", "Content Delivery API reliability issues \u2014 latency spikes, 404s on published content, locale fallback not working. Next and Levi Strauss both independently hit the exact same fallback-locale bug."],
+      ["AgentOS/Automate", 21, "5.6%", "17 customers", "Automation reliability issues \u2014 a recurring \u201call automations rejected\u201d pattern across unrelated orgs, plus a specific missing execution-log status filter that hit two separate customers (Scentsy, Blackmores) independently."]
+    ]
+  },
+  q2fy26: {
+    label: "Q2 FY26 \u2014 May-Jul 2026 (in progress)",
+    subtitle: "Top 5 issue types — Q2 FY26: May – Jul 2026 (in progress)",
+    total: 864,
+    topIssue: "CMS - UI",
+    topPct: 33.6,
+    partial: true,
+    issues: [
+      ["CMS - UI", 290, "33.6%", "154 customers", "Consistent with the monthly pattern \u2014 UI bugs, blank/loading screens, Live Preview failures, taxonomy/localization and workflow bugs, spread across a large and growing customer base."],
+      ["AUTH", 97, "11.2%", "73 customers", "Login/SSO/invitation-acceptance failures remain the dominant theme, affecting a large, broad set of customers \u2014 consistent with prior periods."],
+      ["Key Change Requests", 67, "7.8%", "54 customers", "Limit-increase requests (field size, folder depth, reference/role limits) continue at a steady rate as customers scale their usage."],
+      ["CMS - CDA(Rest)", 63, "7.3%", "48 customers", "Content Delivery API reliability issues \u2014 latency, 404s, locale fallback bugs \u2014 continuing at a similar rate to June."],
+      ["CMS - CMA", 60, "6.9%", "52 customers", "Management API / content-model schema issues, consistent with prior periods."]
+    ]
+  },
+  q1fy26: {
+    label: "Q1 FY26 \u2014 Feb-Apr 2026",
+    subtitle: "Top 5 issue types — Q1 FY26: Feb – Apr 2026",
+    total: 1354,
+    topIssue: "CMS - UI",
+    topPct: 29.2,
+    issues: [
+      ["CMS - UI", 395, "29.2%", "197 customers", "The largest and most consistent issue category all quarter \u2014 UI bugs, blank screens, Live Preview and workflow issues across a very wide customer base."],
+      ["AUTH", 157, "11.6%", "92 customers", "Login/SSO/access issues, consistent with the pattern seen in every other period \u2014 this looks like a standing, structural theme rather than a one-quarter blip."],
+      ["CMS - CDA(Rest)", 120, "8.9%", "77 customers", "API delivery reliability issues (latency, 404s, locale fallback) at meaningfully higher volume than Q2 so far, worth watching whether Q2 catches up as the quarter completes."],
+      ["Key Change Requests", 110, "8.1%", "85 customers", "Limit-increase requests, consistent with other periods."],
+      ["CMS - CMA", 84, "6.2%", "66 customers", "Management API / content-model schema issues, consistent with other periods."]
+    ]
+  }
+};
+const periodOrder = { week: ['week'], month: ['month'], quarter: ['q2fy26', 'q1fy26'] };
+let currentView = 'week';
+
+// ---------- overall case summary (Total / Customers / Open / Resolved), Spam excluded ----------
+const caseSummary = {
+  week: { total: 107, customers: 69, open: 48, resolved: 59, label: "Week of Jun 28 \u2013 Jul 4" },
+  month: { total: 490, customers: 208, open: 115, resolved: 375, label: "June 2026" },
+  q1fy26: { total: 1511, customers: 373, open: 157, resolved: 1354, label: "Q1 FY26 (Feb\u2013Apr)" },
+  q2fy26: { total: 1114, customers: 338, open: 250, resolved: 864, label: "Q2 FY26 (May\u2013Jul, in progress)" }
+};
+
+// ---------- populate period dropdown ----------
+const periodSel = document.getElementById('periodSelect');
+function populatePeriodDropdown(view) {
+  periodSel.innerHTML = '';
+  periodOrder[view].forEach(key => {
+    const opt = document.createElement('option');
+    opt.value = key;
+    opt.textContent = periodData[key].label;
+    periodSel.appendChild(opt);
+  });
+  periodSel.style.display = periodOrder[view].length > 1 ? 'block' : 'none';
+}
+
+function renderPeriod(key) {
+  const d = periodData[key];
+  document.getElementById('subtitleText').textContent = d.subtitle;
+
+  const s = caseSummary[key];
+  document.getElementById('summaryRow').innerHTML = `
+    <div class="summary-card"><p class="summary-label">${s.label} \u2013 Total Cases</p><p class="summary-value">${s.total}</p></div>
+    <div class="summary-card"><p class="summary-label">Customers</p><p class="summary-value">${s.customers}</p></div>
+    <div class="summary-card"><p class="summary-label">Open</p><p class="summary-value">${s.open}</p></div>
+    <div class="summary-card"><p class="summary-label">Resolved</p><p class="summary-value">${s.resolved}</p></div>
+  `;
+
+  document.getElementById('kpiRow').innerHTML = `
+    <div class="kpi-card">
+      <p class="kpi-label">Total closed cases</p>
+      <p class="kpi-value">${d.total}</p>
+      <p class="kpi-sub">Spam excluded</p>
+    </div>
+    <div class="kpi-card">
+      <p class="kpi-label">Top issue type</p>
+      <p class="kpi-value" style="font-size:20px;">${d.topIssue}</p>
+      <p class="kpi-sub">Leading category this period</p>
+    </div>
+    <div class="kpi-card">
+      <p class="kpi-label">Top issue share</p>
+      <p class="kpi-value">${d.topPct}<span class="kpi-pct">%</span></p>
+      <p class="kpi-sub">Of all closed cases</p>
+    </div>
+    <div class="kpi-card">
+      <p class="kpi-label">Issue types tracked</p>
+      <p class="kpi-value">${d.issues.length}</p>
+      <p class="kpi-sub">Shown below (top 5)</p>
+    </div>
+  `;
+
+  const tbody = document.getElementById('issueTableBody');
+  tbody.innerHTML = '';
+  d.issues.forEach((row, i) => {
+    const [type, cases, pct, customers, signals] = row;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="issue-name"><span class="rank-badge">${i+1}</span>${type}</td>
+      <td class="center">${cases}</td>
+      <td class="center">${pct}</td>
+      <td class="customers-text">${customers}</td>
+      <td class="signals-text">${signals}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  const note = document.getElementById('methodologyNote');
+  let noteText = 'The Total/Customers/Open/Resolved band above covers all non-Spam cases created in the period. The Top 5 table below is scoped to closed cases only (Solved/Closed), since that\'s what a completed-issue pattern analysis needs \u2014 open cases haven\'t reached a resolution yet. Issue Type = Microservices field on the Case object.';
+  if (d.partial) noteText += ' This period is still in progress \u2014 volumes and rankings may shift before it closes.';
+  if (key === 'q1fy26' || key === 'q2fy26') noteText += ' Key Signals for quarterly view describe the consistent theme observed across the underlying weekly/monthly detail, not a fresh case-by-case review for the full quarter.';
+  note.textContent = noteText;
+}
+
+// ---------- toggle wiring ----------
+const viewWeekBtn = document.getElementById('viewWeekBtn');
+const viewMonthBtn = document.getElementById('viewMonthBtn');
+const viewQuarterBtn = document.getElementById('viewQuarterBtn');
+
+function setView(view) {
+  currentView = view;
+  viewWeekBtn.classList.toggle('active', view === 'week');
+  viewMonthBtn.classList.toggle('active', view === 'month');
+  viewQuarterBtn.classList.toggle('active', view === 'quarter');
+  populatePeriodDropdown(view);
+  renderPeriod(periodOrder[view][0]);
+}
+
+viewWeekBtn.addEventListener('click', () => setView('week'));
+viewMonthBtn.addEventListener('click', () => setView('month'));
+viewQuarterBtn.addEventListener('click', () => setView('quarter'));
+periodSel.addEventListener('change', (e) => renderPeriod(e.target.value));
+
+// ---------- init ----------
+populatePeriodDropdown('week');
+renderPeriod('week');
+</script>
+</body>
+</html>
