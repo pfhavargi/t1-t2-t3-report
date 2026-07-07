@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>CSE Reports Hub</title>
+<title>T1 → T2 → T3 Escalation & Performance Report</title>
 <style>
   * { box-sizing: border-box; }
   body {
@@ -10,9 +10,10 @@
     background: #1A1919;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     color: #F5F5F4;
-    padding: 48px 24px 64px;
+    padding: 32px 24px 64px;
   }
-  .container { max-width: 1000px; margin: 0 auto; }
+  .container { max-width: 1180px; margin: 0 auto; }
+  .header-row { display: flex; justify-content: space-between; align-items: flex-end; gap: 20px; flex-wrap: wrap; margin-bottom: 32px; }
   .eyebrow {
     color: #AC75FF;
     font-size: 12px;
@@ -21,98 +22,627 @@
     letter-spacing: 0.06em;
     margin: 0 0 8px;
   }
-  h1 { font-size: 30px; font-weight: 500; margin: 0 0 8px; color: #F5F5F4; }
-  .subtitle { color: #9A9998; font-size: 14px; margin: 0 0 40px; }
+  h1 { font-size: 28px; font-weight: 500; margin: 0 0 6px; color: #F5F5F4; }
+  .subtitle { color: #9A9998; font-size: 14px; margin: 0; }
 
-  .card-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-    gap: 16px;
-  }
-
-  .report-card {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
+  .week-picker { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
+  .week-picker label { color: #9A9998; font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; }
+  select#weekSelect {
     background: #292928;
-    border: 1px solid #393838;
-    border-radius: 12px;
-    padding: 22px 22px 20px;
-    text-decoration: none;
-    color: inherit;
-    min-height: 140px;
-    transition: border-color 0.15s, transform 0.15s;
-  }
-  .report-card:hover {
-    border-color: #AC75FF;
-    transform: translateY(-2px);
-  }
-  .report-card .card-title {
-    font-size: 16px;
-    font-weight: 600;
     color: #F5F5F4;
-    margin: 0 0 6px;
+    border: 1px solid #393838;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 14px;
+    font-family: inherit;
+    min-width: 260px;
+    cursor: pointer;
   }
-  .report-card .card-desc {
-    font-size: 13px;
-    color: #9A9998;
-    margin: 0;
-    line-height: 1.5;
+  select#weekSelect:focus { outline: 2px solid #AC75FF; }
+
+  .view-toggle { display: flex; background: #292928; border-radius: 8px; padding: 3px; border: 1px solid #393838; }
+  .view-btn {
+    background: transparent; color: #9A9998; border: none; border-radius: 6px;
+    padding: 7px 16px; font-size: 13px; font-weight: 500; font-family: inherit;
+    cursor: pointer; transition: all 0.15s;
   }
-  .card-arrow {
-    margin-top: 16px;
-    font-size: 13px;
-    font-weight: 500;
-    color: #AC75FF;
+  .view-btn.active { background: #AC75FF; color: #1A1919; }
+
+  .kpi-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin: 28px 0 36px;
+  }
+  .kpi-card {
+    background: #292928;
+    border-radius: 12px;
+    padding: 18px 20px;
+  }
+  .kpi-label { color: #9A9998; font-size: 12px; margin: 0 0 8px; text-transform: uppercase; letter-spacing: 0.03em; }
+  .kpi-value { font-size: 30px; font-weight: 500; margin: 0; color: #F5F5F4; }
+  .kpi-pct { font-size: 16px; color: #899CFA; }
+  .kpi-sub { color: #797777; font-size: 12px; margin: 6px 0 0; }
+
+  .section { margin-bottom: 44px; }
+  .section-title { font-size: 18px; font-weight: 500; margin: 0 0 4px; color: #F5F5F4; }
+  .section-desc { color: #9A9998; font-size: 13px; margin: 0 0 18px; }
+
+  .card {
+    background: #292928;
+    border-radius: 12px;
+    padding: 20px 24px;
   }
 
-  .report-card.placeholder {
-    opacity: 0.45;
-    cursor: default;
-    pointer-events: none;
-  }
-  .placeholder .card-arrow { color: #6B7280; }
-  .badge-soon {
-    display: inline-block;
-    font-size: 10px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    color: #9A9998;
-    background: #1F1F1F;
-    border: 1px solid #393838;
-    border-radius: 20px;
-    padding: 2px 8px;
-    margin-bottom: 8px;
+  .chart-wrap { position: relative; width: 100%; }
+
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  @media (max-width: 900px) { .two-col { grid-template-columns: 1fr; } .kpi-row { grid-template-columns: repeat(2, 1fr); } }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 12px; }
+  th, td { text-align: left; padding: 9px 10px; border-bottom: 1px solid #393838; }
+  th { color: #9A9998; font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing: 0.03em; }
+  td { color: #F5F5F4; }
+  td.num, th.num { text-align: right; }
+  tr.total-row td { font-weight: 500; border-top: 1px solid #525152; color: #AC75FF; }
+
+  .footnote { color: #484747; font-size: 11px; margin-top: 10px; line-height: 1.5; }
+  .source-caption { text-align: center; color: #484747; font-size: 11px; margin-top: 40px; border-top: 1px solid #292928; padding-top: 16px; }
+  .placeholder {
+    color: #797777;
+    font-size: 13px;
+    text-align: center;
+    padding: 40px 20px;
+    border: 1px dashed #393838;
+    border-radius: 12px;
   }
 </style>
 </head>
 <body>
 <div class="container">
-  <p class="eyebrow">Customer Support Engineering</p>
-  <h1>Reports Hub</h1>
-  <p class="subtitle">Pick a report to open its live dashboard.</p>
 
-  <div class="card-grid">
-
-    <a class="report-card" href="reports/t1-t2-t3/">
-      <div>
-        <p class="card-title">T1 → T2 → T3 Escalations</p>
-        <p class="card-desc">Escalation and resolution tracking across support tiers, with Week / Month / Quarter views and per-agent breakdowns.</p>
-      </div>
-      <p class="card-arrow">Open report →</p>
-    </a>
-
-    <div class="report-card placeholder">
-      <div>
-        <span class="badge-soon">Coming soon</span>
-        <p class="card-title">Issue Types Analysis</p>
-        <p class="card-desc">Monthly breakdown of issue categories, affected customers, and recurring signals.</p>
-      </div>
-      <p class="card-arrow">Not yet available</p>
+  <div class="header-row">
+    <div>
+      <p class="eyebrow">T1 Support Performance</p>
+      <h1>T1 → T2 → T3 Escalation & Resolution Report</h1>
+      <p class="subtitle" id="subtitleText">Week of Jun 28 – Jul 4, 2026</p>
     </div>
-
+    <div class="week-picker">
+      <label>View by</label>
+      <div class="view-toggle">
+        <button id="viewWeekBtn" class="view-btn active">Week</button>
+        <button id="viewMonthBtn" class="view-btn">Month</button>
+        <button id="viewQuarterBtn" class="view-btn">Quarter</button>
+      </div>
+      <select id="weekSelect"></select>
+      <select id="monthSelect" style="display:none;"></select>
+      <select id="quarterSelect" style="display:none;"></select>
+    </div>
   </div>
+
+  <!-- KPI ROW -->
+  <div class="kpi-row" id="kpiRow"></div>
+
+  <!-- OVERALL DISTRIBUTION + T1 SOLVE RATE -->
+  <div class="section">
+    <p class="section-title">Overall ticket distribution</p>
+    <p class="section-desc" id="distDesc">Where tickets ended up across the T1 → T2 → T3 chain</p>
+    <div class="two-col">
+      <div class="card">
+        <div class="chart-wrap" style="height:260px;">
+          <canvas id="flowChart" role="img" aria-label="Bar chart of ticket distribution across T1, T2, T3"></canvas>
+        </div>
+      </div>
+      <div class="card">
+        <div class="chart-wrap" style="height:260px;">
+          <canvas id="solveChart" role="img" aria-label="Horizontal bar chart of T1 solved versus still open tickets"></canvas>
+        </div>
+        <p class="footnote" id="solveFootnote"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- T1 AGENT BREAKDOWN -->
+  <div class="section">
+    <p class="section-title">T1 agents: solved vs escalated to T2</p>
+    <p class="section-desc">Out of what each agent personally handled (solved + escalated only; still-open cases excluded)</p>
+    <div id="t1AgentSection" class="two-col">
+      <div class="card">
+        <div class="chart-wrap" style="height:320px;">
+          <canvas id="t1AgentChart" role="img" aria-label="Stacked bar chart of T1 agents showing solved vs escalated counts"></canvas>
+        </div>
+      </div>
+      <div class="card">
+        <table id="t1AgentTable">
+          <tr><th>Agent</th><th class="num">Solved</th><th class="num">Escalated</th><th class="num">Total</th><th class="num">Solve %</th></tr>
+        </table>
+        <p class="footnote" id="t1AgentFootnote"></p>
+      </div>
+    </div>
+    <div id="t1AgentPlaceholder" class="placeholder" style="display:none;">
+      Per-agent breakdown is only available for the most recent week. Ask for a historical pull if you need this for an earlier week.
+    </div>
+  </div>
+
+  <!-- T2 AGENT BREAKDOWN -->
+  <div class="section">
+    <p class="section-title">T2 agents: solved vs escalated to T3</p>
+    <p class="section-desc">Of the tickets escalated from T1, how each T2 agent resolved theirs</p>
+    <div id="t2AgentSection" class="two-col">
+      <div class="card">
+        <div class="chart-wrap" style="height:260px;">
+          <canvas id="t2AgentChart" role="img" aria-label="Stacked bar chart of T2 agents showing solved, escalated to T3, and still open counts"></canvas>
+        </div>
+      </div>
+      <div class="card">
+        <table id="t2AgentTable">
+          <tr><th>Agent</th><th class="num">Received</th><th class="num">Solved</th><th class="num">→ T3</th><th class="num">Open</th></tr>
+        </table>
+        <p class="footnote" id="t2AgentFootnote"></p>
+      </div>
+    </div>
+    <div id="t2AgentPlaceholder" class="placeholder" style="display:none;">
+      Per-agent breakdown is only available for the most recent week. Ask for a historical pull if you need this for an earlier week.
+    </div>
+  </div>
+
+  <!-- TREND (static across all weeks) -->
+  <div class="section">
+    <p class="section-title">6-week trend: volume & escalation rate</p>
+    <p class="section-desc">Escalation rate = (T2 + T3 current ownership) ÷ total tickets for that week. This chart doesn't change with the selector above — it's always the full 6-week view.</p>
+    <div class="card">
+      <div class="chart-wrap" style="height:300px;">
+        <canvas id="trendChart" role="img" aria-label="Combo chart over 6 weeks: bar for weekly ticket volume, line for escalation rate percentage"></canvas>
+      </div>
+    </div>
+    <p class="footnote">Escalation rate has roughly halved over 6 weeks — from 29.7% (week of May 24) to 14.3% (week of Jun 28). Weekly figures use current tier ownership as a proxy for escalation state.</p>
+  </div>
+
+  <p class="source-caption">Source: Salesforce Case + CaseHistory (Team_Responsible__c, Owner). Generated Jul 7, 2026.</p>
+
 </div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+Chart.defaults.font.family = "Inter, sans-serif";
+Chart.defaults.color = '#797777';
+const tooltipStyle = { backgroundColor: '#1A1919', titleColor: '#9A9998', bodyColor: '#F5F5F4', borderColor: '#393838', borderWidth: 1 };
+const gridStyle = { color: 'rgba(255,255,255,0.06)' };
+
+// ---------- WEEKLY DATA ----------
+// Only the most recent week (jun28) has full per-agent detail.
+const weekData = {
+  jun28: {
+    label: "Week of Jun 28 – Jul 4, 2026 (most recent)",
+    subtitle: "Week of Jun 28 – Jul 4, 2026",
+    total: 126, t1: 108, t2: 18, t3: 8,
+    t1Pct: 85.7, t2Pct: 14.3, t3Pct: 6.3,
+    t1Solved: 62, t1Open: 46, t1SolvedPct: 57.4,
+    hasAgentDetail: true,
+    t1Agents: [
+      ["Nesara Nagaraju", 11, 6, 17, "64.7%"],
+      ["Karthik Haralayya", 9, 5, 14, "64.3%"],
+      ["Manjunath N", 10, 1, 11, "90.9%"],
+      ["Amruth Lakshman", 5, 1, 6, "83.3%"],
+      ["Nidhi Mahankali", 4, 2, 6, "66.7%"],
+      ["Vinodakumara A", 3, 2, 5, "60.0%"],
+      ["Manoj GH", 2, 1, 3, "66.7%"],
+      ["Sobiya Khan", 4, 0, 4, "100%"],
+      ["Abdul Rahaman", 2, 0, 2, "100%"],
+      ["Lavanya TU", 2, 0, 2, "100%"],
+      ["Anmol Tanwer", 1, 0, 1, "100%"],
+      ["Vishakha K", 1, 0, 1, "100%"]
+    ],
+    t1AgentFootnote: "9 additional cases landed in a \"Spam Cases\" system queue (auto-filtered, not agent-solved) — excluded from this table.",
+    t2Agents: [
+      ["Selwyn Moses", 6, 0, 4, 2],
+      ["Priyanka Dubey", 4, 1, 1, 2],
+      ["Kunal Chavan", 4, 0, 2, 2],
+      ["Chetan Salvi *", 2, 0, 0, 2],
+      ["Abhay Kumar", 2, 1, 1, 0]
+    ],
+    t2Total: [18, 2, 8, 8],
+    t2AgentFootnote: "* Chetan Salvi's 2 cases are parked in the CDP Team queue rather than actively held by him. T2→T3 transitions are logged under a \"JIRA Integration\" system user — the \"→ T3\" column reflects who owned the case at the moment it escalated."
+  },
+  jun21: { label: "Week of Jun 21 – Jun 27, 2026", subtitle: "Week of Jun 21 – Jun 27, 2026",
+    total: 108, t1: 86, t2: 4, t3: 18, t1Pct: 79.6, t2Pct: 3.7, t3Pct: 16.7,
+    t1Solved: 64, t1Open: 22, t1SolvedPct: 74.4, hasAgentDetail: false },
+  jun14: { label: "Week of Jun 14 – Jun 20, 2026", subtitle: "Week of Jun 14 – Jun 20, 2026",
+    total: 113, t1: 95, t2: 5, t3: 13, t1Pct: 84.1, t2Pct: 4.4, t3Pct: 11.5,
+    t1Solved: 87, t1Open: 8, t1SolvedPct: 91.6, hasAgentDetail: false },
+  jun07: { label: "Week of Jun 07 – Jun 13, 2026", subtitle: "Week of Jun 07 – Jun 13, 2026",
+    total: 121, t1: 96, t2: 6, t3: 19, t1Pct: 79.3, t2Pct: 5.0, t3Pct: 15.7,
+    t1Solved: 85, t1Open: 11, t1SolvedPct: 88.5, hasAgentDetail: false },
+  may31: { label: "Week of May 31 – Jun 06, 2026", subtitle: "Week of May 31 – Jun 06, 2026",
+    total: 108, t1: 84, t2: 10, t3: 14, t1Pct: 77.8, t2Pct: 9.3, t3Pct: 13.0,
+    t1Solved: 81, t1Open: 3, t1SolvedPct: 96.4, hasAgentDetail: false },
+  may24: { label: "Week of May 24 – May 30, 2026 (oldest)", subtitle: "Week of May 24 – May 30, 2026",
+    total: 128, t1: 90, t2: 10, t3: 28, t1Pct: 70.3, t2Pct: 7.8, t3Pct: 21.9,
+    t1Solved: 89, t1Open: 1, t1SolvedPct: 98.9, hasAgentDetail: false }
+};
+const weekOrder = ['jun28','jun21','jun14','jun07','may31','may24'];
+
+// ---------- MONTHLY DATA (exact, from Salesforce aggregate queries) ----------
+const monthData = {
+  jul26: { label: "July 2026 (partial, in progress)", subtitle: "July 2026 (partial — month in progress)",
+    total: 140, t1: 124, t2: 8, t3: 8, t1Pct: 88.6, t2Pct: 5.7, t3Pct: 5.7,
+    t1Solved: 59, t1Open: 65, t1SolvedPct: 47.6, hasAgentDetail: false, partial: true },
+  jun26: { label: "June 2026", subtitle: "June 2026",
+    total: 497, t1: 404, t2: 28, t3: 65, t1Pct: 81.3, t2Pct: 5.6, t3Pct: 13.1,
+    t1Solved: 348, t1Open: 56, t1SolvedPct: 86.1, hasAgentDetail: false },
+  may26: { label: "May 2026", subtitle: "May 2026",
+    total: 516, t1: 367, t2: 39, t3: 110, t1Pct: 71.1, t2Pct: 7.6, t3Pct: 21.3,
+    t1Solved: 362, t1Open: 5, t1SolvedPct: 98.6, hasAgentDetail: false },
+  apr26: { label: "April 2026", subtitle: "April 2026",
+    total: 478, t1: 325, t2: 41, t3: 112, t1Pct: 68.0, t2Pct: 8.6, t3Pct: 23.4,
+    t1Solved: 320, t1Open: 5, t1SolvedPct: 98.5, hasAgentDetail: false },
+  mar26: { label: "March 2026", subtitle: "March 2026",
+    total: 511, t1: 341, t2: 32, t3: 138, t1Pct: 66.7, t2Pct: 6.3, t3Pct: 27.0,
+    t1Solved: 333, t1Open: 8, t1SolvedPct: 97.7, hasAgentDetail: false }
+};
+const monthOrder = ['jul26','jun26','may26','apr26','mar26'];
+
+// ---------- QUARTERLY DATA ----------
+// Fiscal year: Feb - Jan. Q1 = Feb-Apr, Q2 = May-Jul, Q3 = Aug-Oct, Q4 = Nov-Jan.
+const quarterData = {
+  q2fy26: { label: "Q2 FY26 — May-Jul 2026 (in progress)", subtitle: "Q2 FY26: May – Jul 2026 (in progress)",
+    total: 1153, t1: 895, t2: 75, t3: 183, t1Pct: 77.6, t2Pct: 6.5, t3Pct: 15.9,
+    t1Solved: 769, t1Open: 126, t1SolvedPct: 85.9, hasAgentDetail: false, partial: true },
+  q1fy26: { label: "Q1 FY26 — Feb-Apr 2026", subtitle: "Q1 FY26: Feb – Apr 2026",
+    total: 1512, t1: 1010, t2: 113, t3: 389, t1Pct: 66.8, t2Pct: 7.5, t3Pct: 25.7,
+    t1Solved: 994, t1Open: 16, t1SolvedPct: 98.4, hasAgentDetail: false }
+};
+const quarterOrder = ['q2fy26','q1fy26'];
+let currentView = 'week'; // 'week', 'month', or 'quarter'
+
+// ---------- populate dropdowns ----------
+const sel = document.getElementById('weekSelect');
+weekOrder.forEach(key => {
+  const opt = document.createElement('option');
+  opt.value = key;
+  opt.textContent = weekData[key].label;
+  sel.appendChild(opt);
+});
+
+const monthSel = document.getElementById('monthSelect');
+monthOrder.forEach(key => {
+  const opt = document.createElement('option');
+  opt.value = key;
+  opt.textContent = monthData[key].label;
+  monthSel.appendChild(opt);
+});
+
+const quarterSel = document.getElementById('quarterSelect');
+quarterOrder.forEach(key => {
+  const opt = document.createElement('option');
+  opt.value = key;
+  opt.textContent = quarterData[key].label;
+  quarterSel.appendChild(opt);
+});
+
+// ---------- toggle wiring ----------
+const viewWeekBtn = document.getElementById('viewWeekBtn');
+const viewMonthBtn = document.getElementById('viewMonthBtn');
+const viewQuarterBtn = document.getElementById('viewQuarterBtn');
+
+function setView(view) {
+  currentView = view;
+  viewWeekBtn.classList.toggle('active', view === 'week');
+  viewMonthBtn.classList.toggle('active', view === 'month');
+  viewQuarterBtn.classList.toggle('active', view === 'quarter');
+  sel.style.display = view === 'week' ? 'block' : 'none';
+  monthSel.style.display = view === 'month' ? 'block' : 'none';
+  quarterSel.style.display = view === 'quarter' ? 'block' : 'none';
+  if (view === 'week') {
+    document.getElementById('distDesc').textContent = 'Where tickets ended up across the T1 → T2 → T3 chain';
+    renderWeek(sel.value);
+  } else if (view === 'month') {
+    monthSel.value = monthOrder[0];
+    renderMonth(monthSel.value);
+  } else {
+    quarterSel.value = quarterOrder[0];
+    renderQuarter(quarterSel.value);
+  }
+}
+
+viewWeekBtn.addEventListener('click', () => setView('week'));
+viewMonthBtn.addEventListener('click', () => setView('month'));
+viewQuarterBtn.addEventListener('click', () => setView('quarter'));
+monthSel.addEventListener('change', (e) => renderMonth(e.target.value));
+quarterSel.addEventListener('change', (e) => renderQuarter(e.target.value));
+
+function renderQuarter(key) {
+  const d = quarterData[key];
+  document.getElementById('subtitleText').textContent = d.subtitle;
+  document.getElementById('distDesc').textContent = `Where ${d.total} tickets that quarter ended up across the T1 → T2 → T3 chain` + (d.partial ? ' — quarter still in progress, numbers will keep moving' : '');
+
+  document.getElementById('kpiRow').innerHTML = `
+    <div class="kpi-card">
+      <p class="kpi-label">Total tickets</p>
+      <p class="kpi-value">${d.total}</p>
+      <p class="kpi-sub">Created that quarter</p>
+    </div>
+    <div class="kpi-card">
+      <p class="kpi-label">Resolved by T1</p>
+      <p class="kpi-value">${d.t1} <span class="kpi-pct">${d.t1Pct}%</span></p>
+      <p class="kpi-sub">Never left T1</p>
+    </div>
+    <div class="kpi-card">
+      <p class="kpi-label">Escalated to T2</p>
+      <p class="kpi-value">${d.t2} <span class="kpi-pct">${d.t2Pct}%</span></p>
+      <p class="kpi-sub">Of total volume</p>
+    </div>
+    <div class="kpi-card">
+      <p class="kpi-label">Escalated to T3</p>
+      <p class="kpi-value">${d.t3} <span class="kpi-pct">${d.t3Pct}%</span></p>
+      <p class="kpi-sub">Of total volume</p>
+    </div>
+  `;
+
+  flowChart.data.labels = [`Total (100%)`, `T1 (${d.t1Pct}%)`, `To T2 (${d.t2Pct}%)`, `To T3 (${d.t3Pct}%)`];
+  flowChart.data.datasets[0].data = [d.total, d.t1, d.t2, d.t3];
+  flowChart.update();
+
+  solveChart.data.datasets[0].data = [d.t1Solved, d.t1Open];
+  solveChart.update();
+  document.getElementById('solveFootnote').textContent =
+    `T1 solve rate: ${d.t1Solved} of ${d.t1} tickets T1 owned end-to-end are Solved/Closed (${d.t1SolvedPct}%). The remaining ${d.t1Open} are still New/Open/Pending/On Hold.` +
+    (d.partial ? ' Note: this quarter is still in progress, so the open count is inflated relative to a completed quarter — not a real performance drop.' : '');
+
+  document.getElementById('t1AgentSection').style.display = 'none';
+  document.getElementById('t1AgentPlaceholder').style.display = 'block';
+  document.getElementById('t1AgentPlaceholder').textContent = 'Per-agent breakdown is only available in Week view for the most recent week. Ask for a quarterly agent-level pull if you need this rolled up by quarter.';
+  document.getElementById('t2AgentSection').style.display = 'none';
+  document.getElementById('t2AgentPlaceholder').style.display = 'block';
+  document.getElementById('t2AgentPlaceholder').textContent = 'Per-agent breakdown is only available in Week view for the most recent week. Ask for a quarterly agent-level pull if you need this rolled up by quarter.';
+}
+
+function renderMonth(key) {
+  const d = monthData[key];
+  document.getElementById('subtitleText').textContent = d.subtitle;
+  document.getElementById('distDesc').textContent = `Where ${d.total} tickets that month ended up across the T1 → T2 → T3 chain` + (d.partial ? ' — month still in progress, numbers will keep moving' : '');
+
+  document.getElementById('kpiRow').innerHTML = `
+    <div class="kpi-card">
+      <p class="kpi-label">Total tickets</p>
+      <p class="kpi-value">${d.total}</p>
+      <p class="kpi-sub">Created that month</p>
+    </div>
+    <div class="kpi-card">
+      <p class="kpi-label">Resolved by T1</p>
+      <p class="kpi-value">${d.t1} <span class="kpi-pct">${d.t1Pct}%</span></p>
+      <p class="kpi-sub">Never left T1</p>
+    </div>
+    <div class="kpi-card">
+      <p class="kpi-label">Escalated to T2</p>
+      <p class="kpi-value">${d.t2} <span class="kpi-pct">${d.t2Pct}%</span></p>
+      <p class="kpi-sub">Of total volume</p>
+    </div>
+    <div class="kpi-card">
+      <p class="kpi-label">Escalated to T3</p>
+      <p class="kpi-value">${d.t3} <span class="kpi-pct">${d.t3Pct}%</span></p>
+      <p class="kpi-sub">Of total volume</p>
+    </div>
+  `;
+
+  flowChart.data.labels = [`Total (100%)`, `T1 (${d.t1Pct}%)`, `To T2 (${d.t2Pct}%)`, `To T3 (${d.t3Pct}%)`];
+  flowChart.data.datasets[0].data = [d.total, d.t1, d.t2, d.t3];
+  flowChart.update();
+
+  solveChart.data.datasets[0].data = [d.t1Solved, d.t1Open];
+  solveChart.update();
+  document.getElementById('solveFootnote').textContent =
+    `T1 solve rate: ${d.t1Solved} of ${d.t1} tickets T1 owned end-to-end are Solved/Closed (${d.t1SolvedPct}%). The remaining ${d.t1Open} are still New/Open/Pending/On Hold.` +
+    (d.partial ? ' Note: this month is still in progress, so the open count is inflated relative to a completed month — not a real performance drop.' : '');
+
+  document.getElementById('t1AgentSection').style.display = 'none';
+  document.getElementById('t1AgentPlaceholder').style.display = 'block';
+  document.getElementById('t1AgentPlaceholder').textContent = 'Per-agent breakdown is only available in Week view for the most recent week. Ask for a monthly agent-level pull if you need this rolled up by month.';
+  document.getElementById('t2AgentSection').style.display = 'none';
+  document.getElementById('t2AgentPlaceholder').style.display = 'block';
+  document.getElementById('t2AgentPlaceholder').textContent = 'Per-agent breakdown is only available in Week view for the most recent week. Ask for a monthly agent-level pull if you need this rolled up by month.';
+}
+
+// ---------- chart instances ----------
+let flowChart, solveChart, t1AgentChart, t2AgentChart;
+
+function fmtNum(n){ return Math.round(n); }
+
+function renderWeek(key) {
+  const d = weekData[key];
+  document.getElementById('subtitleText').textContent = d.subtitle;
+  document.getElementById('distDesc').textContent = `Where ${d.total} tickets that week ended up across the T1 → T2 → T3 chain`;
+
+  // KPI cards
+  document.getElementById('kpiRow').innerHTML = `
+    <div class="kpi-card">
+      <p class="kpi-label">Total tickets</p>
+      <p class="kpi-value">${d.total}</p>
+      <p class="kpi-sub">Created that week</p>
+    </div>
+    <div class="kpi-card">
+      <p class="kpi-label">Resolved by T1</p>
+      <p class="kpi-value">${d.t1} <span class="kpi-pct">${d.t1Pct}%</span></p>
+      <p class="kpi-sub">Never left T1</p>
+    </div>
+    <div class="kpi-card">
+      <p class="kpi-label">Escalated to T2</p>
+      <p class="kpi-value">${d.t2} <span class="kpi-pct">${d.t2Pct}%</span></p>
+      <p class="kpi-sub">Of total volume</p>
+    </div>
+    <div class="kpi-card">
+      <p class="kpi-label">Escalated to T3</p>
+      <p class="kpi-value">${d.t3} <span class="kpi-pct">${d.t3Pct}%</span></p>
+      <p class="kpi-sub">Of total volume</p>
+    </div>
+  `;
+
+  // Flow chart
+  const flowData = [d.total, d.t1, d.t2, d.t3];
+  const flowLabels = [`Total (100%)`, `T1 (${d.t1Pct}%)`, `To T2 (${d.t2Pct}%)`, `To T3 (${d.t3Pct}%)`];
+  flowChart.data.labels = flowLabels;
+  flowChart.data.datasets[0].data = flowData;
+  flowChart.update();
+
+  // Solve chart
+  solveChart.data.datasets[0].data = [d.t1Solved, d.t1Open];
+  solveChart.update();
+  document.getElementById('solveFootnote').textContent =
+    `T1 solve rate: ${d.t1Solved} of ${d.t1} tickets T1 owned end-to-end are Solved/Closed (${d.t1SolvedPct}%). The remaining ${d.t1Open} are still New/Open/Pending/On Hold.`;
+
+  // Agent sections
+  const t1Section = document.getElementById('t1AgentSection');
+  const t1Placeholder = document.getElementById('t1AgentPlaceholder');
+  const t2Section = document.getElementById('t2AgentSection');
+  const t2Placeholder = document.getElementById('t2AgentPlaceholder');
+
+  if (d.hasAgentDetail) {
+    t1Section.style.display = 'grid';
+    t1Placeholder.style.display = 'none';
+    t2Section.style.display = 'grid';
+    t2Placeholder.style.display = 'none';
+
+    const t1Table = document.getElementById('t1AgentTable');
+    t1Table.innerHTML = '<tr><th>Agent</th><th class="num">Solved</th><th class="num">Escalated</th><th class="num">Total</th><th class="num">Solve %</th></tr>';
+    d.t1Agents.forEach(row => {
+      t1Table.innerHTML += `<tr><td>${row[0]}</td><td class="num">${row[1]}</td><td class="num">${row[2]}</td><td class="num">${row[3]}</td><td class="num">${row[4]}</td></tr>`;
+    });
+    document.getElementById('t1AgentFootnote').textContent = d.t1AgentFootnote || '';
+
+    const labels = d.t1Agents.map(r => r[0]);
+    const solved = d.t1Agents.map(r => r[1]);
+    const esc = d.t1Agents.map(r => r[2]);
+    t1AgentChart.data.labels = labels;
+    t1AgentChart.data.datasets[0].data = solved;
+    t1AgentChart.data.datasets[1].data = esc;
+    t1AgentChart.update();
+
+    const t2Table = document.getElementById('t2AgentTable');
+    t2Table.innerHTML = '<tr><th>Agent</th><th class="num">Received</th><th class="num">Solved</th><th class="num">→ T3</th><th class="num">Open</th></tr>';
+    d.t2Agents.forEach(row => {
+      t2Table.innerHTML += `<tr><td>${row[0]}</td><td class="num">${row[1]}</td><td class="num">${row[2]}</td><td class="num">${row[3]}</td><td class="num">${row[4]}</td></tr>`;
+    });
+    t2Table.innerHTML += `<tr class="total-row"><td>Total</td><td class="num">${d.t2Total[0]}</td><td class="num">${d.t2Total[1]}</td><td class="num">${d.t2Total[2]}</td><td class="num">${d.t2Total[3]}</td></tr>`;
+    document.getElementById('t2AgentFootnote').textContent = d.t2AgentFootnote || '';
+
+    const t2Labels = d.t2Agents.map(r => r[0]);
+    const t2Solved = d.t2Agents.map(r => r[2]);
+    const t2Esc = d.t2Agents.map(r => r[3]);
+    const t2Open = d.t2Agents.map(r => r[4]);
+    t2AgentChart.data.labels = t2Labels;
+    t2AgentChart.data.datasets[0].data = t2Solved;
+    t2AgentChart.data.datasets[1].data = t2Esc;
+    t2AgentChart.data.datasets[2].data = t2Open;
+    t2AgentChart.update();
+  } else {
+    t1Section.style.display = 'none';
+    t1Placeholder.style.display = 'block';
+    t1Placeholder.textContent = 'Per-agent breakdown is only available for the most recent week. Ask for a historical pull if you need this for an earlier week.';
+    t2Section.style.display = 'none';
+    t2Placeholder.style.display = 'block';
+    t2Placeholder.textContent = 'Per-agent breakdown is only available for the most recent week. Ask for a historical pull if you need this for an earlier week.';
+  }
+}
+
+// ---------- initialize charts (empty, filled by renderWeek) ----------
+flowChart = new Chart(document.getElementById('flowChart'), {
+  type: 'bar',
+  data: { labels: [], datasets: [{ data: [], backgroundColor: ['#654A8C', '#AC75FF', '#899CFA', '#B0F7BA'], borderRadius: 4, maxBarThickness: 50 }] },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false }, tooltip: tooltipStyle },
+    scales: { x: { ticks: { font: { size: 11 } }, grid: { display: false } }, y: { ticks: { font: { size: 11 } }, grid: gridStyle, beginAtZero: true } }
+  },
+  plugins: [{
+    id: 'flowLabels',
+    afterDatasetsDraw(chart) {
+      const {ctx} = chart;
+      chart.data.datasets[0].data.forEach((val, i) => {
+        const meta = chart.getDatasetMeta(0).data[i];
+        if (!meta) return;
+        ctx.save(); ctx.fillStyle = '#F5F5F4'; ctx.font = '500 12px Inter'; ctx.textAlign = 'center';
+        ctx.fillText(fmtNum(val), meta.x, meta.y - 8); ctx.restore();
+      });
+    }
+  }]
+});
+
+solveChart = new Chart(document.getElementById('solveChart'), {
+  type: 'bar',
+  data: { labels: ['Solved / Closed', 'Still open'], datasets: [{ data: [], backgroundColor: ['#AC75FF', '#525B89'], borderRadius: 4, maxBarThickness: 40 }] },
+  options: {
+    indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false }, tooltip: tooltipStyle },
+    scales: { x: { ticks: { font: { size: 11 } }, grid: gridStyle, beginAtZero: true }, y: { ticks: { font: { size: 12 } }, grid: { display: false } } }
+  },
+  plugins: [{
+    id: 'solveLabels',
+    afterDatasetsDraw(chart) {
+      const {ctx} = chart;
+      chart.data.datasets[0].data.forEach((val, i) => {
+        const meta = chart.getDatasetMeta(0).data[i];
+        if (!meta) return;
+        ctx.save(); ctx.fillStyle = '#F5F5F4'; ctx.font = '500 12px Inter'; ctx.textAlign = 'left';
+        ctx.fillText(fmtNum(val), meta.x + 8, meta.y + 4); ctx.restore();
+      });
+    }
+  }]
+});
+
+t1AgentChart = new Chart(document.getElementById('t1AgentChart'), {
+  type: 'bar',
+  data: { labels: [], datasets: [
+    { label: 'Solved', data: [], backgroundColor: '#AC75FF', borderRadius: 3, maxBarThickness: 18 },
+    { label: 'Escalated to T2', data: [], backgroundColor: '#654A8C', borderRadius: 3, maxBarThickness: 18 }
+  ]},
+  options: {
+    indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: true, position: 'top', labels: { color: '#9A9998', font: { size: 11 }, boxWidth: 10, boxHeight: 10 } }, tooltip: tooltipStyle },
+    scales: { x: { stacked: true, ticks: { font: { size: 11 } }, grid: gridStyle, beginAtZero: true }, y: { stacked: true, ticks: { font: { size: 11 } }, grid: { display: false } } }
+  }
+});
+
+t2AgentChart = new Chart(document.getElementById('t2AgentChart'), {
+  type: 'bar',
+  data: { labels: [], datasets: [
+    { label: 'Solved', data: [], backgroundColor: '#AC75FF', borderRadius: 3, maxBarThickness: 34 },
+    { label: 'Escalated to T3', data: [], backgroundColor: '#654A8C', borderRadius: 3, maxBarThickness: 34 },
+    { label: 'Still open', data: [], backgroundColor: '#525B89', borderRadius: 3, maxBarThickness: 34 }
+  ]},
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: true, position: 'top', labels: { color: '#9A9998', font: { size: 11 }, boxWidth: 10, boxHeight: 10 } }, tooltip: tooltipStyle },
+    scales: { x: { stacked: true, ticks: { font: { size: 11 } }, grid: { display: false } }, y: { stacked: true, ticks: { font: { size: 11 } }, grid: gridStyle, beginAtZero: true } }
+  }
+});
+
+// ---------- trend chart (static, always full 6 weeks) ----------
+const weekLabels = ['May 24','May 31','Jun 07','Jun 14','Jun 21','Jun 28'];
+const volumes = [128, 108, 121, 113, 108, 126];
+const escRates = [29.7, 22.2, 20.7, 15.9, 20.4, 14.3];
+new Chart(document.getElementById('trendChart'), {
+  data: {
+    labels: weekLabels,
+    datasets: [
+      { type: 'bar', label: 'Weekly volume', data: volumes, backgroundColor: '#654A8C', borderRadius: 4, maxBarThickness: 44, yAxisID: 'y' },
+      { type: 'line', label: 'Escalation rate (%)', data: escRates, borderColor: '#B0F7BA', backgroundColor: '#B0F7BA', borderWidth: 2, pointRadius: 4, pointBackgroundColor: '#B0F7BA', tension: 0.3, yAxisID: 'y1' }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: true, labels: { color: '#9A9998', font: { size: 11 }, boxWidth: 10, boxHeight: 10 } }, tooltip: tooltipStyle },
+    scales: {
+      x: { ticks: { font: { size: 11 } }, grid: { display: false } },
+      y: { position: 'left', ticks: { font: { size: 11 } }, grid: gridStyle, title: { display: true, text: 'Tickets', color: '#797777', font: { size: 10 } } },
+      y1: { position: 'right', ticks: { font: { size: 11 }, callback: (v) => v + '%' }, grid: { display: false }, title: { display: true, text: 'Escalation %', color: '#797777', font: { size: 10 } } }
+    }
+  }
+});
+
+// ---------- wire up selector ----------
+sel.addEventListener('change', (e) => renderWeek(e.target.value));
+sel.value = 'jun28';
+renderWeek('jun28');
+</script>
 </body>
 </html>
