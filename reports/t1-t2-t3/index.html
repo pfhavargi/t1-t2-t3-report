@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>CSE Reports Hub</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: #1A1919;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: #F5F5F4;
+    padding: 48px 24px 64px;
+  }
+  .container { max-width: 1000px; margin: 0 auto; }
+  .eyebrow {
+    color: #AC75FF;
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin: 0 0 8px;
+  }
+  h1 { font-size: 30px; font-weight: 500; margin: 0 0 8px; color: #F5F5F4; }
+  .subtitle { color: #9A9998; font-size: 14px; margin: 0 0 40px; }
+
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 16px;
+  }
+
+  .report-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    background: #292928;
+    border: 1px solid #393838;
+    border-radius: 12px;
+    padding: 22px 22px 20px;
+    text-decoration: none;
+    color: inherit;
+    min-height: 140px;
+    transition: border-color 0.15s, transform 0.15s;
+  }
+  .report-card:hover {
+    border-color: #AC75FF;
+    transform: translateY(-2px);
+  }
+  .report-card .card-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #F5F5F4;
+    margin: 0 0 6px;
+  }
+  .report-card .card-desc {
+    font-size: 13px;
+    color: #9A9998;
+    margin: 0;
+    line-height: 1.5;
+  }
+  .card-arrow {
+    margin-top: 16px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #AC75FF;
+  }
+
+  .report-card.placeholder {
+    opacity: 0.45;
+    cursor: default;
+    pointer-events: none;
+  }
+  .placeholder .card-arrow { color: #6B7280; }
+  .badge-soon {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #9A9998;
+    background: #1F1F1F;
+    border: 1px solid #393838;
+    border-radius: 20px;
+    padding: 2px 8px;
+    margin-bottom: 8px;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <p class="eyebrow">Customer Support Engineering</p>
+  <h1>Reports Hub</h1>
+  <p class="subtitle">Pick a report to open its live dashboard.</p>
+
+  <div class="card-grid">
+
+    <a class="report-card" href="reports/t1-t2-t3/">
+      <div>
+        <p class="card-title">T1 → T2 → T3 Escalations</p>
+        <p class="card-desc">Escalation and resolution tracking across support tiers, with Week / Month / Quarter views and per-agent breakdowns.</p>
+      </div>
+      <p class="card-arrow">Open report →</p>
+    </a>
+
+    <div class="report-card placeholder">
+      <div>
+        <span class="badge-soon">Coming soon</span>
+        <p class="card-title">Issue Types Analysis</p>
+        <p class="card-desc">Monthly breakdown of issue categories, affected customers, and recurring signals.</p>
+      </div>
+      <p class="card-arrow">Not yet available</p>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>
