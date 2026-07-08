@@ -297,26 +297,177 @@ const monthData = {
   },
   may26: { label: "May 2026", subtitle: "May 2026",
     total: 516, t1: 367, t2: 39, t3: 110, t1Pct: 71.1, t2Pct: 7.6, t3Pct: 21.3,
-    t1Solved: 362, t1Open: 5, t1SolvedPct: 98.6, hasAgentDetail: false },
+    t1Solved: 362, t1Open: 5, t1SolvedPct: 98.6, hasAgentDetail: true,
+    t1Agents: [
+      ["Vishakha K", 44, 16, 60, "73.3%"],
+      ["Nidhi Mahankali", 40, 19, 59, "67.8%"],
+      ["Karthik Haralayya", 39, 23, 62, "62.9%"],
+      ["Manoj GH", 32, 13, 45, "71.1%"],
+      ["Lavanya TU", 32, 11, 43, "74.4%"],
+      ["Nesara Nagaraju", 31, 16, 47, "66.0%"],
+      ["Amruth Lakshman", 29, 12, 41, "70.7%"],
+      ["Vinodakumara A", 27, 8, 35, "77.1%"],
+      ["Abdul Rahaman", 25, 4, 29, "86.2%"],
+      ["Manjunath N", 24, 9, 33, "72.7%"],
+      ["Anmol Tanwer", 22, 12, 34, "64.7%"],
+      ["Sobiya Khan", 17, 2, 19, "89.5%"]
+    ],
+    t1AgentFootnote: "",
+    t2Agents: [
+      ["Chetan Salvi", 37, 8, 28, 1],
+      ["Kunal Chavan", 29, 3, 25, 1],
+      ["Priyanka Dubey", 27, 9, 18, 0],
+      ["Selwyn Moses", 26, 6, 18, 2],
+      ["Abhay Kumar", 25, 9, 16, 0]
+    ],
+    t2Total: [145, 35, 106, 4],
+    t2AgentFootnote: "T2\u2192T3 transitions are logged under a \"JIRA Integration\" system user \u2014 the \"\u2192 T3\" column reflects who owned the case at the moment it escalated."
+  },
   apr26: { label: "April 2026", subtitle: "April 2026",
     total: 478, t1: 325, t2: 41, t3: 112, t1Pct: 68.0, t2Pct: 8.6, t3Pct: 23.4,
-    t1Solved: 320, t1Open: 5, t1SolvedPct: 98.5, hasAgentDetail: false },
+    t1Solved: 320, t1Open: 5, t1SolvedPct: 98.5, hasAgentDetail: true,
+    t1Agents: [
+      ["Nesara Nagaraju", 41, 14, 55, "74.5%"],
+      ["Karthik Haralayya", 36, 16, 52, "69.2%"],
+      ["Lavanya TU", 35, 14, 49, "71.4%"],
+      ["Abdul Rahaman", 31, 9, 40, "77.5%"],
+      ["Nidhi Mahankali", 29, 14, 43, "67.4%"],
+      ["Manjunath N", 29, 15, 44, "65.9%"],
+      ["Manoj GH", 28, 19, 47, "59.6%"],
+      ["Anmol Tanwer", 26, 9, 35, "74.3%"],
+      ["Amruth Lakshman", 22, 14, 36, "61.1%"],
+      ["Vishakha K", 22, 11, 33, "66.7%"],
+      ["Vinodakumara A", 14, 12, 26, "53.8%"],
+      ["Sobiya Khan", 7, 5, 12, "58.3%"]
+    ],
+    t1AgentFootnote: "",
+    t2Agents: [
+      ["Priyanka Dubey", 44, 12, 32, 0],
+      ["Chetan Salvi", 33, 18, 15, 0],
+      ["Kunal Chavan", 28, 2, 26, 0],
+      ["Selwyn Moses", 28, 7, 21, 0],
+      ["Abhay Kumar", 18, 2, 16, 0]
+    ],
+    t2Total: [151, 41, 110, 0],
+    t2AgentFootnote: "T2\u2192T3 transitions are logged under a \"JIRA Integration\" system user \u2014 the \"\u2192 T3\" column reflects who owned the case at the moment it escalated."
+  },
   mar26: { label: "March 2026", subtitle: "March 2026",
     total: 511, t1: 341, t2: 32, t3: 138, t1Pct: 66.7, t2Pct: 6.3, t3Pct: 27.0,
-    t1Solved: 333, t1Open: 8, t1SolvedPct: 97.7, hasAgentDetail: false }
+    t1Solved: 333, t1Open: 8, t1SolvedPct: 97.7, hasAgentDetail: true,
+    t1Agents: [
+      ["Manjunath N", 54, 21, 75, "72.0%"],
+      ["Abdul Rahaman", 46, 12, 58, "79.3%"],
+      ["Nesara Nagaraju", 38, 22, 60, "63.3%"],
+      ["Lavanya TU", 37, 17, 54, "68.5%"],
+      ["Amruth Lakshman", 31, 19, 50, "62.0%"],
+      ["Manoj GH", 28, 21, 49, "57.1%"],
+      ["Vinodakumara A", 25, 12, 37, "67.6%"],
+      ["Vishakha K", 23, 13, 36, "63.9%"],
+      ["Karthik Haralayya", 18, 15, 33, "54.5%"],
+      ["Nidhi Mahankali", 17, 6, 23, "73.9%"],
+      ["Anmol Tanwer", 16, 9, 25, "64.0%"]
+    ],
+    t1AgentFootnote: "",
+    t2Agents: [
+      ["Kunal Chavan", 46, 6, 38, 2],
+      ["Abhay Kumar", 41, 7, 34, 0],
+      ["Selwyn Moses", 29, 3, 25, 1],
+      ["Priyanka Dubey", 29, 9, 20, 0],
+      ["Chetan Salvi", 22, 4, 18, 0]
+    ],
+    t2Total: [167, 29, 135, 3],
+    t2AgentFootnote: "T2\u2192T3 transitions are logged under a \"JIRA Integration\" system user \u2014 the \"\u2192 T3\" column reflects who owned the case at the moment it escalated."
+  },
+  feb26: { label: "February 2026", subtitle: "February 2026",
+    total: 344, t1: 194, t2: 32, t3: 118, t1Pct: 56.4, t2Pct: 9.3, t3Pct: 34.3,
+    t1Solved: 190, t1Open: 4, t1SolvedPct: 97.9, hasAgentDetail: true,
+    t1Agents: [
+      ["Vishakha K", 45, 15, 60, "75.0%"],
+      ["Anmol Tanwer", 43, 18, 61, "70.5%"],
+      ["Abdul Rahaman", 38, 20, 58, "65.5%"],
+      ["Manoj GH", 35, 25, 60, "58.3%"],
+      ["Lavanya TU", 31, 17, 48, "64.6%"],
+      ["Nesara Nagaraju", 27, 16, 43, "62.8%"],
+      ["Karthik Haralayya", 27, 16, 43, "62.8%"],
+      ["Nidhi Mahankali", 26, 10, 36, "72.2%"],
+      ["Manjunath N", 25, 6, 31, "80.6%"],
+      ["Vinodakumara A", 24, 23, 47, "51.1%"],
+      ["Amruth Lakshman", 20, 10, 30, "66.7%"]
+    ],
+    t1AgentFootnote: "",
+    t2Agents: [
+      ["Abhay Kumar", 50, 9, 41, 0],
+      ["Selwyn Moses", 44, 8, 35, 1],
+      ["Chetan Salvi", 33, 12, 21, 0],
+      ["Kunal Chavan", 31, 3, 28, 0],
+      ["Priyanka Dubey", 20, 7, 13, 0]
+    ],
+    t2Total: [178, 39, 138, 1],
+    t2AgentFootnote: "T2\u2192T3 transitions are logged under a \"JIRA Integration\" system user \u2014 the \"\u2192 T3\" column reflects who owned the case at the moment it escalated."
+  }
 };
-const monthOrder = ['jul26','jun26','may26','apr26','mar26'];
 
 // ---------- QUARTERLY DATA ----------
 // Fiscal year: Feb - Jan. Q1 = Feb-Apr, Q2 = May-Jul, Q3 = Aug-Oct, Q4 = Nov-Jan.
 const quarterData = {
   q2fy26: { label: "Q2 FY26 — May-Jul 2026 (in progress)", subtitle: "Q2 FY26: May – Jul 2026 (in progress)",
     total: 1153, t1: 895, t2: 75, t3: 183, t1Pct: 77.6, t2Pct: 6.5, t3Pct: 15.9,
-    t1Solved: 769, t1Open: 126, t1SolvedPct: 85.9, hasAgentDetail: false, partial: true },
+    t1Solved: 769, t1Open: 126, t1SolvedPct: 85.9, hasAgentDetail: true, partial: true,
+    t1Agents: [
+      ["Karthik Haralayya", 100, 36, 136, "73.5%"],
+      ["Nesara Nagaraju", 81, 27, 108, "75.0%"],
+      ["Nidhi Mahankali", 77, 29, 106, "72.6%"],
+      ["Amruth Lakshman", 58, 26, 84, "69.0%"],
+      ["Vishakha K", 56, 20, 76, "73.7%"],
+      ["Manjunath N", 57, 12, 69, "82.6%"],
+      ["Vinodakumara A", 52, 16, 68, "76.5%"],
+      ["Sobiya Khan", 57, 9, 66, "86.4%"],
+      ["Manoj GH", 52, 13, 65, "80.0%"],
+      ["Lavanya TU", 47, 16, 63, "74.6%"],
+      ["Anmol Tanwer", 40, 17, 57, "70.2%"],
+      ["Abdul Rahaman", 34, 5, 39, "87.2%"]
+    ],
+    t1AgentFootnote: "Agent detail reflects May + June only — July is still in progress and its per-agent breakdown hasn't been pulled yet, though its totals are included in the KPI cards above.",
+    t2Agents: [
+      ["Kunal Chavan", 61, 4, 50, 7],
+      ["Chetan Salvi", 60, 17, 39, 4],
+      ["Selwyn Moses", 42, 7, 33, 2],
+      ["Priyanka Dubey", 40, 15, 24, 1],
+      ["Abhay Kumar", 34, 10, 23, 1]
+    ],
+    t2Total: [237, 53, 169, 15],
+    t2AgentFootnote: "Reflects May + June only (July pending). T2→T3 transitions are logged under a \"JIRA Integration\" system user — the \"→ T3\" column reflects who owned the case at the moment it escalated."
+  },
   q1fy26: { label: "Q1 FY26 — Feb-Apr 2026", subtitle: "Q1 FY26: Feb – Apr 2026",
     total: 1512, t1: 1010, t2: 113, t3: 389, t1Pct: 66.8, t2Pct: 7.5, t3Pct: 25.7,
-    t1Solved: 994, t1Open: 16, t1SolvedPct: 98.4, hasAgentDetail: false }
+    t1Solved: 994, t1Open: 16, t1SolvedPct: 98.4, hasAgentDetail: true,
+    t1Agents: [
+      ["Nesara Nagaraju", 106, 52, 158, "67.1%"],
+      ["Abdul Rahaman", 115, 41, 156, "73.7%"],
+      ["Manoj GH", 91, 65, 156, "58.3%"],
+      ["Lavanya TU", 103, 48, 151, "68.2%"],
+      ["Manjunath N", 108, 42, 150, "72.0%"],
+      ["Vishakha K", 90, 39, 129, "69.8%"],
+      ["Karthik Haralayya", 81, 47, 128, "63.3%"],
+      ["Anmol Tanwer", 85, 36, 121, "70.2%"],
+      ["Amruth Lakshman", 73, 43, 116, "62.9%"],
+      ["Vinodakumara A", 63, 47, 110, "57.3%"],
+      ["Nidhi Mahankali", 72, 30, 102, "70.6%"],
+      ["Sobiya Khan", 7, 5, 12, "58.3%"]
+    ],
+    t1AgentFootnote: "Full quarter (Feb, Mar, Apr all complete).",
+    t2Agents: [
+      ["Abhay Kumar", 109, 18, 91, 0],
+      ["Kunal Chavan", 105, 11, 92, 2],
+      ["Selwyn Moses", 101, 18, 81, 2],
+      ["Priyanka Dubey", 93, 28, 65, 0],
+      ["Chetan Salvi", 88, 34, 54, 0]
+    ],
+    t2Total: [496, 109, 383, 4],
+    t2AgentFootnote: "Full quarter (Feb, Mar, Apr all complete). T2→T3 transitions are logged under a \"JIRA Integration\" system user — the \"→ T3\" column reflects who owned the case at the moment it escalated."
+  }
 };
+const monthOrder = ['jul26','jun26','may26','apr26','mar26','feb26'];
 const quarterOrder = ['q2fy26','q1fy26'];
 let currentView = 'week'; // 'week', 'month', or 'quarter'
 
@@ -420,6 +571,46 @@ function renderQuarter(key) {
   document.getElementById('t2AgentSection').style.display = 'none';
   document.getElementById('t2AgentPlaceholder').style.display = 'block';
   document.getElementById('t2AgentPlaceholder').textContent = 'Per-agent breakdown is only available in Week view for the most recent week. Ask for a quarterly agent-level pull if you need this rolled up by quarter.';
+
+  if (d.hasAgentDetail) {
+    document.getElementById('t1AgentSection').style.display = 'grid';
+    document.getElementById('t1AgentPlaceholder').style.display = 'none';
+    document.getElementById('t2AgentSection').style.display = 'grid';
+    document.getElementById('t2AgentPlaceholder').style.display = 'none';
+
+    const t1Table = document.getElementById('t1AgentTable');
+    t1Table.innerHTML = '<tr><th>Agent</th><th class="num">Solved</th><th class="num">Escalated</th><th class="num">Total</th><th class="num">Solve %</th></tr>';
+    d.t1Agents.forEach(row => {
+      t1Table.innerHTML += `<tr><td>${row[0]}</td><td class="num">${row[1]}</td><td class="num">${row[2]}</td><td class="num">${row[3]}</td><td class="num">${row[4]}</td></tr>`;
+    });
+    document.getElementById('t1AgentFootnote').textContent = d.t1AgentFootnote || '';
+
+    const labels = d.t1Agents.map(r => r[0]);
+    const solved = d.t1Agents.map(r => r[1]);
+    const esc = d.t1Agents.map(r => r[2]);
+    t1AgentChart.data.labels = labels;
+    t1AgentChart.data.datasets[0].data = solved;
+    t1AgentChart.data.datasets[1].data = esc;
+    t1AgentChart.update();
+
+    const t2Table = document.getElementById('t2AgentTable');
+    t2Table.innerHTML = '<tr><th>Agent</th><th class="num">Received</th><th class="num">Solved</th><th class="num">→ T3</th><th class="num">Open</th></tr>';
+    d.t2Agents.forEach(row => {
+      t2Table.innerHTML += `<tr><td>${row[0]}</td><td class="num">${row[1]}</td><td class="num">${row[2]}</td><td class="num">${row[3]}</td><td class="num">${row[4]}</td></tr>`;
+    });
+    t2Table.innerHTML += `<tr class="total-row"><td>Total</td><td class="num">${d.t2Total[0]}</td><td class="num">${d.t2Total[1]}</td><td class="num">${d.t2Total[2]}</td><td class="num">${d.t2Total[3]}</td></tr>`;
+    document.getElementById('t2AgentFootnote').textContent = d.t2AgentFootnote || '';
+
+    const t2Labels = d.t2Agents.map(r => r[0]);
+    const t2Solved = d.t2Agents.map(r => r[2]);
+    const t2Esc = d.t2Agents.map(r => r[3]);
+    const t2Open = d.t2Agents.map(r => r[4]);
+    t2AgentChart.data.labels = t2Labels;
+    t2AgentChart.data.datasets[0].data = t2Solved;
+    t2AgentChart.data.datasets[1].data = t2Esc;
+    t2AgentChart.data.datasets[2].data = t2Open;
+    t2AgentChart.update();
+  }
 }
 
 function renderMonth(key) {
