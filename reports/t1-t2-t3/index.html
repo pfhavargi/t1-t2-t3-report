@@ -269,7 +269,32 @@ const monthData = {
     t1Solved: 59, t1Open: 65, t1SolvedPct: 47.6, hasAgentDetail: false, partial: true },
   jun26: { label: "June 2026", subtitle: "June 2026",
     total: 497, t1: 404, t2: 28, t3: 65, t1Pct: 81.3, t2Pct: 5.6, t3Pct: 13.1,
-    t1Solved: 348, t1Open: 56, t1SolvedPct: 86.1, hasAgentDetail: false },
+    t1Solved: 348, t1Open: 56, t1SolvedPct: 86.1, hasAgentDetail: true,
+    t1Agents: [
+      ["Karthik Haralayya", 61, 13, 74, "82.4%"],
+      ["Nesara Nagaraju", 50, 11, 61, "82.0%"],
+      ["Sobiya Khan", 40, 7, 47, "85.1%"],
+      ["Nidhi Mahankali", 37, 10, 47, "78.7%"],
+      ["Manjunath N", 33, 3, 36, "91.7%"],
+      ["Amruth Lakshman", 29, 14, 43, "67.4%"],
+      ["Vinodakumara A", 25, 8, 33, "75.8%"],
+      ["Manoj GH", 20, 0, 20, "100%"],
+      ["Anmol Tanwer", 18, 5, 23, "78.3%"],
+      ["Lavanya TU", 15, 5, 20, "75.0%"],
+      ["Vishakha K", 12, 4, 16, "75.0%"],
+      ["Abdul Rahaman", 9, 1, 10, "90.0%"]
+    ],
+    t1AgentFootnote: "3 additional cases went through a \"CDP Team\" system queue (auto-routed, not agent-solved) \u2014 excluded from this table.",
+    t2Agents: [
+      ["Kunal Chavan", 32, 1, 25, 6],
+      ["Chetan Salvi", 23, 9, 11, 3],
+      ["Selwyn Moses", 16, 1, 15, 0],
+      ["Priyanka Dubey", 13, 6, 6, 1],
+      ["Abhay Kumar", 9, 1, 7, 1]
+    ],
+    t2Total: [93, 18, 64, 11],
+    t2AgentFootnote: "T2\u2192T3 transitions are logged under a \"JIRA Integration\" system user \u2014 the \"\u2192 T3\" column reflects who owned the case at the moment it escalated. A handful of cases bounced between T2 and T3 multiple times during the month; each is counted once, at its most recent escalation."
+  },
   may26: { label: "May 2026", subtitle: "May 2026",
     total: 516, t1: 367, t2: 39, t3: 110, t1Pct: 71.1, t2Pct: 7.6, t3Pct: 21.3,
     t1Solved: 362, t1Open: 5, t1SolvedPct: 98.6, hasAgentDetail: false },
@@ -441,6 +466,46 @@ function renderMonth(key) {
   document.getElementById('t2AgentSection').style.display = 'none';
   document.getElementById('t2AgentPlaceholder').style.display = 'block';
   document.getElementById('t2AgentPlaceholder').textContent = 'Per-agent breakdown is only available in Week view for the most recent week. Ask for a monthly agent-level pull if you need this rolled up by month.';
+
+  if (d.hasAgentDetail) {
+    document.getElementById('t1AgentSection').style.display = 'grid';
+    document.getElementById('t1AgentPlaceholder').style.display = 'none';
+    document.getElementById('t2AgentSection').style.display = 'grid';
+    document.getElementById('t2AgentPlaceholder').style.display = 'none';
+
+    const t1Table = document.getElementById('t1AgentTable');
+    t1Table.innerHTML = '<tr><th>Agent</th><th class="num">Solved</th><th class="num">Escalated</th><th class="num">Total</th><th class="num">Solve %</th></tr>';
+    d.t1Agents.forEach(row => {
+      t1Table.innerHTML += `<tr><td>${row[0]}</td><td class="num">${row[1]}</td><td class="num">${row[2]}</td><td class="num">${row[3]}</td><td class="num">${row[4]}</td></tr>`;
+    });
+    document.getElementById('t1AgentFootnote').textContent = d.t1AgentFootnote || '';
+
+    const labels = d.t1Agents.map(r => r[0]);
+    const solved = d.t1Agents.map(r => r[1]);
+    const esc = d.t1Agents.map(r => r[2]);
+    t1AgentChart.data.labels = labels;
+    t1AgentChart.data.datasets[0].data = solved;
+    t1AgentChart.data.datasets[1].data = esc;
+    t1AgentChart.update();
+
+    const t2Table = document.getElementById('t2AgentTable');
+    t2Table.innerHTML = '<tr><th>Agent</th><th class="num">Received</th><th class="num">Solved</th><th class="num">→ T3</th><th class="num">Open</th></tr>';
+    d.t2Agents.forEach(row => {
+      t2Table.innerHTML += `<tr><td>${row[0]}</td><td class="num">${row[1]}</td><td class="num">${row[2]}</td><td class="num">${row[3]}</td><td class="num">${row[4]}</td></tr>`;
+    });
+    t2Table.innerHTML += `<tr class="total-row"><td>Total</td><td class="num">${d.t2Total[0]}</td><td class="num">${d.t2Total[1]}</td><td class="num">${d.t2Total[2]}</td><td class="num">${d.t2Total[3]}</td></tr>`;
+    document.getElementById('t2AgentFootnote').textContent = d.t2AgentFootnote || '';
+
+    const t2Labels = d.t2Agents.map(r => r[0]);
+    const t2Solved = d.t2Agents.map(r => r[2]);
+    const t2Esc = d.t2Agents.map(r => r[3]);
+    const t2Open = d.t2Agents.map(r => r[4]);
+    t2AgentChart.data.labels = t2Labels;
+    t2AgentChart.data.datasets[0].data = t2Solved;
+    t2AgentChart.data.datasets[1].data = t2Esc;
+    t2AgentChart.data.datasets[2].data = t2Open;
+    t2AgentChart.update();
+  }
 }
 
 // ---------- chart instances ----------
