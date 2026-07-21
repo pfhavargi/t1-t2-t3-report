@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>T1 → T2 → T3 Escalation Report (Live)</title>
+<title>CSE Individual Data</title>
 <style>
   * { box-sizing: border-box; }
   body {
@@ -17,43 +17,47 @@
   .eyebrow { color: #AC75FF; font-size: 12px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; margin: 0 0 8px; }
   h1 { font-size: 28px; font-weight: 500; margin: 0 0 6px; color: #F5F5F4; }
   .subtitle { color: #9A9998; font-size: 14px; margin: 0; }
-  .live-badge {
-    display: inline-flex; align-items: center; gap: 6px; background: #1E3B2A; color: #7FE08C;
-    font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 20px; margin-left: 10px;
-  }
-  .live-dot { width: 6px; height: 6px; border-radius: 50%; background: #7FE08C; animation: pulse 1.5s infinite; }
-  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
 
-  select#periodSelect {
-    background: #292928; color: #F5F5F4; border: 1px solid #393838; border-radius: 8px;
-    padding: 10px 14px; font-size: 14px; font-family: inherit; min-width: 200px; cursor: pointer;
+  .controls-row { display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-end; margin-bottom: 28px; }
+  .picker-block { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
+  .picker-block label { color: #9A9998; font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; }
+  .toggle-group { display: flex; background: #292928; border-radius: 8px; padding: 3px; border: 1px solid #393838; }
+  .toggle-btn {
+    background: transparent; color: #9A9998; border: none; border-radius: 6px;
+    padding: 7px 16px; font-size: 13px; font-weight: 500; font-family: inherit;
+    cursor: pointer; transition: all 0.15s;
   }
+  .toggle-btn.active { background: #AC75FF; color: #1A1919; }
+  select {
+    background: #292928; color: #F5F5F4; border: 1px solid #393838; border-radius: 8px;
+    padding: 10px 14px; font-size: 14px; font-family: inherit; min-width: 220px; cursor: pointer;
+  }
+  select:focus { outline: 2px solid #AC75FF; }
 
   .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin: 0 0 28px; }
   .kpi-card { background: #292928; border-radius: 12px; padding: 18px 20px; }
   .kpi-label { color: #9A9998; font-size: 12px; margin: 0 0 8px; text-transform: uppercase; letter-spacing: 0.03em; }
   .kpi-value { font-size: 28px; font-weight: 500; margin: 0; color: #F5F5F4; }
-  .kpi-pct { font-size: 16px; color: #899CFA; }
   .kpi-sub { color: #797777; font-size: 12px; margin: 6px 0 0; }
+  .kpi-sub.vs-avg-up { color: #7FE08C; }
+  .kpi-sub.vs-avg-down { color: #FF8A8A; }
+
+  .two-col { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 20px; margin-bottom: 28px; }
+  @media (max-width: 900px) { .two-col { grid-template-columns: 1fr; } .kpi-row { grid-template-columns: repeat(2, 1fr); } }
 
   .card { background: #292928; border-radius: 12px; padding: 20px 24px; }
-  .section-title { font-size: 16px; font-weight: 500; margin: 0 0 4px; color: #F5F5F4; }
-  .section-desc { color: #9A9998; font-size: 13px; margin: 0 0 18px; }
-
-  table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  th, td { text-align: left; padding: 9px 10px; border-bottom: 1px solid #393838; }
-  th { color: #9A9998; font-weight: 500; font-size: 11px; text-transform: uppercase; }
-  td.num, th.num { text-align: right; }
-
-  .status-box {
-    background: #292928; border-radius: 12px; padding: 40px; text-align: center;
-    color: #9A9998; font-size: 14px;
+  .section-title { font-size: 16px; font-weight: 500; margin: 0 0 14px; color: #F5F5F4; }
+  .insight-list { margin: 0; padding: 0; list-style: none; }
+  .insight-list li {
+    padding: 10px 0 10px 26px; position: relative; font-size: 13.5px; color: #E5E4E3; line-height: 1.5;
+    border-bottom: 1px solid #393838;
   }
-  .error-box {
-    background: #3A2222; border: 1px solid #5A3232; border-radius: 12px; padding: 20px 24px;
-    color: #FF8A8A; font-size: 13px; line-height: 1.6;
-  }
-  .footnote { color: #484747; font-size: 11px; margin-top: 14px; line-height: 1.6; }
+  .insight-list li:last-child { border-bottom: none; }
+  .insight-list.improving li::before { content: "▲"; color: #7FE08C; position: absolute; left: 0; top: 10px; font-size: 11px; }
+  .insight-list.improve li::before { content: "▼"; color: #FF8A8A; position: absolute; left: 0; top: 10px; font-size: 11px; }
+
+  .footnote { color: #484747; font-size: 11px; margin-top: 10px; line-height: 1.6; }
+  .source-caption { text-align: center; color: #484747; font-size: 11px; margin-top: 40px; border-top: 1px solid #292928; padding-top: 16px; }
 </style>
 </head>
 <body>
@@ -61,99 +65,493 @@
 
   <div class="header-row">
     <div>
-      <p class="eyebrow">T1 Support Performance</p>
-      <h1>T1 → T2 → T3 Escalation Report <span class="live-badge"><span class="live-dot"></span>LIVE</span></h1>
-      <p class="subtitle" id="subtitleText">Loading live data from Salesforce...</p>
+      <div style="display:flex;flex-wrap:wrap;gap:0;margin-bottom:18px;"><a href="../../" style="display:inline-block;padding:6px 12px;border-radius:6px;font-size:12px;text-decoration:none;margin-right:4px;color:#9A9998;background:#292928;border:1px solid #393838;">Home</a><a href="../t1-t2-t3/" style="display:inline-block;padding:6px 12px;border-radius:6px;font-size:12px;text-decoration:none;margin-right:4px;color:#9A9998;background:#292928;border:1px solid #393838;">T1 → T2 → T3</a><a href="../issue-types/" style="display:inline-block;padding:6px 12px;border-radius:6px;font-size:12px;text-decoration:none;margin-right:4px;color:#9A9998;background:#292928;border:1px solid #393838;">Issue Types</a><a href="../cse-individual/" style="display:inline-block;padding:6px 12px;border-radius:6px;font-size:12px;text-decoration:none;margin-right:4px;background:#AC75FF;color:#1A1919;font-weight:600;">CSE Individual</a><a href="../okr/" style="display:inline-block;padding:6px 12px;border-radius:6px;font-size:12px;text-decoration:none;margin-right:4px;color:#9A9998;background:#292928;border:1px solid #393838;">OKR</a></div>
+      <p class="eyebrow">CSE Individual Data</p>
+      <h1 id="agentTitle">Karthik Haralayya</h1>
+      <p class="subtitle" id="periodSubtitle">Individual performance, ranking, and trend</p>
     </div>
-    <select id="periodSelect">
-      <option value="last_week">Last Week</option>
-      <option value="this_month">This Month (partial)</option>
-      <option value="last_month">Last Month</option>
-    </select>
   </div>
 
-  <div id="content">
-    <div class="status-box">Connecting to Salesforce...</div>
+  <div class="controls-row">
+    <div class="picker-block">
+      <label>View by</label>
+      <div class="toggle-group">
+        <button id="viewWeekBtn" class="toggle-btn">Week</button>
+        <button id="viewMonthBtn" class="toggle-btn active">Month</button>
+        <button id="viewQuarterBtn" class="toggle-btn">Quarter</button>
+      </div>
+    </div>
+    <div class="picker-block">
+      <label>Period</label>
+      <select id="periodSelect"></select>
+    </div>
+    <div class="picker-block">
+      <label>Tier</label>
+      <div class="toggle-group">
+        <button id="tierT1Btn" class="toggle-btn active">T1</button>
+        <button id="tierT2Btn" class="toggle-btn">T2</button>
+      </div>
+    </div>
+    <div class="picker-block">
+      <label>Agent</label>
+      <select id="agentSelect"></select>
+    </div>
   </div>
 
-  <p class="footnote">
-    This page calls a Contentstack Launch Cloud Function (<code>/escalation-data</code>) on load,
-    which authenticates to Salesforce and runs live SOQL queries — data shown is current as of
-    the moment this page was opened (cached at the edge for up to 5 minutes). This is a live
-    subset (KPIs + T1 agent solve/escalate table) of the full static report — month-over-month
-    trends, resolution time, CSAT, and T2 detail are not yet part of the live version.
-  </p>
+  <div class="kpi-row" id="kpiRow"></div>
+
+  <div class="two-col">
+    <div class="card">
+      <p class="section-title">Solve rate & resolution time trend (Feb – Jun)</p>
+      <div class="chart-wrap" style="height:280px;">
+        <canvas id="personalTrendChart" role="img" aria-label="Line chart of this agent's solve rate and resolution time trend"></canvas>
+      </div>
+      <p class="footnote">This trend chart always shows the full Feb–Jun monthly view regardless of the Week/Month/Quarter selector above — it's the long-term picture, not tied to a single period.</p>
+    </div>
+    <div class="card">
+      <p class="section-title" id="rankChartTitle">Where they stand vs. the team</p>
+      <div class="chart-wrap" style="height:280px;">
+        <canvas id="rankChart" role="img" aria-label="Bar chart comparing this agent's solve rate, volume, and resolution time to the team average"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <div class="card">
+      <p class="section-title">What's improving</p>
+      <ul class="insight-list improving" id="improvingList"></ul>
+    </div>
+    <div class="card">
+      <p class="section-title">What needs improvement</p>
+      <ul class="insight-list improve" id="improveList"></ul>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:28px;">
+    <p class="section-title">Team leaderboard — composite ranking (<span id="leaderboardPeriodLabel"></span>)</p>
+    <p class="section-desc" style="color:#9A9998;font-size:13px;margin:0 0 14px;">Ranked by a weighted score, not solve rate alone — so someone handling real volume at a solid rate outranks someone with a tiny sample and a lucky high percentage. Weights: 40% cases solved, 35% solve rate, 25% resolution speed (T2: 55% cases solved, 45% solve rate — no resolution-time data for T2 yet).</p>
+    <table style="width:100%;border-collapse:collapse;font-size:13.5px;">
+      <thead>
+        <tr style="background:#211F2E;">
+          <th style="padding:10px;text-align:left;color:#C9BEEF;font-size:11px;text-transform:uppercase;">Rank</th>
+          <th style="padding:10px;text-align:left;color:#C9BEEF;font-size:11px;text-transform:uppercase;">Agent</th>
+          <th style="padding:10px;text-align:right;color:#C9BEEF;font-size:11px;text-transform:uppercase;">Solved</th>
+          <th style="padding:10px;text-align:right;color:#C9BEEF;font-size:11px;text-transform:uppercase;">Total</th>
+          <th style="padding:10px;text-align:right;color:#C9BEEF;font-size:11px;text-transform:uppercase;">Solve %</th>
+          <th style="padding:10px;text-align:right;color:#C9BEEF;font-size:11px;text-transform:uppercase;" id="resTimeHeaderCell">Res. Days</th>
+          <th style="padding:10px;text-align:right;color:#AC75FF;font-size:11px;text-transform:uppercase;">Weightage</th>
+        </tr>
+      </thead>
+      <tbody id="leaderboardBody"></tbody>
+    </table>
+  </div>
+
+  <p class="source-caption">Source: Salesforce Case, CaseHistory, ContentstackSurveyResponse__c, pulled via SOQL while the Salesforce connector was live. Rankings and averages are among the same tier's active agents in the selected period. Underlying data Feb–Jun 2026, composite leaderboard added Jul 16, 2026. Page last edited Jul 20, 2026.</p>
 
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
-const periodSelect = document.getElementById('periodSelect');
-const content = document.getElementById('content');
-const subtitleText = document.getElementById('subtitleText');
+Chart.defaults.font.family = "Inter, sans-serif";
+Chart.defaults.color = '#797777';
+const tooltipStyle = { backgroundColor: '#1A1919', titleColor: '#9A9998', bodyColor: '#F5F5F4', borderColor: '#393838', borderWidth: 1 };
+const gridStyle = { color: 'rgba(255,255,255,0.06)' };
+const trendMonths = ["Feb","Mar","Apr","May","Jun"];
 
-async function loadData(period) {
-  content.innerHTML = '<div class="status-box">Fetching live data from Salesforce…</div>';
-  try {
-    const resp = await fetch(`/escalation-data?period=${encodeURIComponent(period)}`);
-    const data = await resp.json();
-    if (!resp.ok || data.error) {
-      throw new Error(data.error || `Request failed (${resp.status})`);
+// ============ FEB-JUN MONTHLY TREND DATA (used for the always-on trend chart) ============
+const t1SolveTrend = {
+  "Karthik Haralayya": {Feb:62.8,Mar:51.5,Apr:69.2,May:62.9,Jun:82.4},
+  "Nesara Nagaraju": {Feb:62.8,Mar:63.3,Apr:74.5,May:66.0,Jun:82.0},
+  "Nidhi Mahankali": {Feb:72.2,Mar:73.9,Apr:62.8,May:64.4,Jun:76.6},
+  "Sobiya Khan": {Apr:58.3,May:63.2,Jun:66.0},
+  "Amruth Lakshman": {Feb:66.7,Mar:60.0,Apr:58.3,May:70.7,Jun:67.4},
+  "Manjunath N": {Feb:80.6,Mar:72.0,Apr:63.6,May:69.7,Jun:86.1},
+  "Vinodakumara A": {Feb:51.1,Mar:67.6,Apr:53.8,May:77.1,Jun:75.8},
+  "Anmol Tanwer": {Feb:70.5,Mar:64.0,Apr:68.6,May:55.9,Jun:69.6},
+  "Manoj GH": {Feb:58.3,Mar:57.1,Apr:59.6,May:68.9,Jun:90.0},
+  "Lavanya TU": {Feb:64.6,Mar:68.5,Apr:71.4,May:74.4,Jun:65.0},
+  "Vishakha K": {Feb:75.0,Mar:61.1,Apr:63.6,May:71.7,Jun:68.8},
+  "Abdul Rahaman": {Feb:63.8,Mar:77.6,Apr:67.5,May:69.0,Jun:80.0}
+};
+const t1ResTrend = {
+  "Karthik Haralayya": {Feb:5.37,Mar:4.71,Apr:2.67,May:2.90,Jun:2.34},
+  "Nesara Nagaraju": {Feb:3.04,Mar:4.05,Apr:3.41,May:2.97,Jun:3.22},
+  "Nidhi Mahankali": {Feb:4.00,Mar:4.24,Apr:3.44,May:3.68,Jun:4.00},
+  "Sobiya Khan": {Apr:3.57,May:5.83,Jun:5.19},
+  "Amruth Lakshman": {Feb:11.25,Mar:5.80,Apr:5.90,May:8.10,Jun:5.93},
+  "Manjunath N": {Feb:4.40,Mar:4.24,Apr:2.32,May:4.26,Jun:2.90},
+  "Vinodakumara A": {Feb:9.42,Mar:8.24,Apr:5.50,May:6.11,Jun:5.96},
+  "Anmol Tanwer": {Feb:4.26,Mar:5.50,Apr:5.21,May:5.58,Jun:4.29},
+  "Manoj GH": {Feb:4.09,Mar:5.43,Apr:5.25,May:4.39,Jun:4.28},
+  "Lavanya TU": {Feb:6.39,Mar:6.89,Apr:4.91,May:4.34,Jun:6.43},
+  "Vishakha K": {Feb:6.76,Mar:6.23,Apr:5.95,May:4.93,Jun:10.09},
+  "Abdul Rahaman": {Feb:6.30,Mar:5.00,Apr:5.26,May:9.25,Jun:5.00}
+};
+const t2SolveTrend = {
+  "Kunal Chavan": {Feb:9.7,Mar:13.6,Apr:7.1,May:10.7,Jun:3.8},
+  "Chetan Salvi": {Feb:36.4,Mar:18.2,Apr:54.5,May:22.2,Jun:45.0},
+  "Selwyn Moses": {Feb:18.6,Mar:10.7,Apr:25.0,May:25.0,Jun:6.2},
+  "Priyanka Dubey": {Feb:35.0,Mar:31.0,Apr:27.3,May:33.3,Jun:50.0},
+  "Abhay Kumar": {Feb:18.0,Mar:17.1,Apr:11.1,May:36.0,Jun:12.5}
+};
+
+// ============ PER-PERIOD DATA: row format [solved/received, esc2, esc3/esc_t3, open, total, pct] ============
+// T1 row: [solved, esc2, esc3, total, pct]   T2 row: [received, solved, esc3, open]
+const periodData = {
+  week: {
+    order: ['jun28','jun21','jun14','jun07','may31','may24'],
+    labels: {jun28:"Week of Jun 28 - Jul 4",jun21:"Week of Jun 21 - Jun 27",jun14:"Week of Jun 14 - Jun 20",jun07:"Week of Jun 07 - Jun 13",may31:"Week of May 31 - Jun 06",may24:"Week of May 24 - May 30"},
+    t1: {
+      jun28: {"Nesara Nagaraju":[11,6,0,17,64.7],"Karthik Haralayya":[9,5,0,14,64.3],"Manjunath N":[10,1,0,11,90.9],"Amruth Lakshman":[5,1,0,6,83.3],"Nidhi Mahankali":[4,2,0,6,66.7],"Vinodakumara A":[3,2,0,5,60.0],"Sobiya Khan":[4,0,0,4,100.0],"Manoj GH":[2,1,0,3,66.7],"Abdul Rahaman":[2,0,0,2,100.0],"Lavanya TU":[2,0,0,2,100.0],"Anmol Tanwer":[1,0,0,1,100.0],"Vishakha K":[1,0,0,1,100.0]},
+      jun21: {"Karthik Haralayya":[12,8,0,20,60.0],"Sobiya Khan":[9,5,4,18,50.0],"Nesara Nagaraju":[10,3,0,13,76.9],"Manjunath N":[7,0,1,8,87.5],"Nidhi Mahankali":[5,3,0,8,62.5],"Amruth Lakshman":[4,3,0,7,57.1],"Vinodakumara A":[3,1,0,4,75.0],"Anmol Tanwer":[2,0,0,2,100.0],"Vishakha K":[1,0,1,2,50.0],"Abdul Rahaman":[1,0,1,2,50.0],"Lavanya TU":[2,0,0,2,100.0],"Manoj GH":[1,0,1,2,50.0]},
+      jun14: {"Karthik Haralayya":[15,1,0,16,93.8],"Nesara Nagaraju":[10,6,0,16,62.5],"Amruth Lakshman":[10,3,0,13,76.9],"Nidhi Mahankali":[10,3,0,13,76.9],"Sobiya Khan":[9,2,2,13,69.2],"Manjunath N":[9,1,1,11,81.8],"Lavanya TU":[5,1,2,8,62.5],"Manoj GH":[5,0,1,6,83.3],"Abdul Rahaman":[5,0,0,5,100.0],"Vinodakumara A":[4,0,0,4,100.0]},
+      jun07: {"Karthik Haralayya":[15,6,0,21,71.4],"Nidhi Mahankali":[15,2,1,18,83.3],"Nesara Nagaraju":[14,2,0,16,87.5],"Vinodakumara A":[11,4,0,15,73.3],"Anmol Tanwer":[6,2,1,9,66.7],"Amruth Lakshman":[4,5,0,9,44.4],"Sobiya Khan":[6,1,0,7,85.7],"Manjunath N":[4,0,0,4,100.0],"Manoj GH":[4,0,0,4,100.0],"Vishakha K":[2,1,0,3,66.7],"Lavanya TU":[2,1,0,3,66.7]},
+      may31: {"Nesara Nagaraju":[12,2,0,14,85.7],"Karthik Haralayya":[12,2,0,14,85.7],"Amruth Lakshman":[11,4,0,15,73.3],"Anmol Tanwer":[7,3,1,11,63.6],"Vishakha K":[7,2,0,9,77.8],"Manoj GH":[7,0,0,7,100.0],"Sobiya Khan":[5,0,2,7,71.4],"Vinodakumara A":[5,3,0,8,62.5],"Lavanya TU":[4,3,0,7,57.1],"Manjunath N":[3,2,0,5,60.0],"Nidhi Mahankali":[3,2,0,5,60.0],"Abdul Rahaman":[1,0,0,1,100.0]},
+      may24: {"Amruth Lakshman":[14,5,0,19,73.7],"Karthik Haralayya":[12,6,0,18,66.7],"Nesara Nagaraju":[10,6,0,16,62.5],"Vishakha K":[9,3,0,12,75.0],"Vinodakumara A":[9,1,0,10,90.0],"Abdul Rahaman":[8,1,2,11,72.7],"Manjunath N":[6,2,0,8,75.0],"Anmol Tanwer":[5,4,0,9,55.6],"Manoj GH":[4,2,1,7,57.1],"Nidhi Mahankali":[3,2,1,6,50.0],"Lavanya TU":[3,2,0,5,60.0],"Sobiya Khan":[2,1,0,3,66.7]}
+    },
+    t2: {
+      jun28: {"Selwyn Moses":[6,0,4,2],"Priyanka Dubey":[4,1,1,2],"Kunal Chavan":[4,0,2,2],"Chetan Salvi":[2,0,0,2],"Abhay Kumar":[2,1,1,0]},
+      jun21: {"Selwyn Moses":[8,0,8,0],"Kunal Chavan":[8,0,7,1],"Chetan Salvi":[4,1,2,1],"Priyanka Dubey":[2,2,0,0],"Abhay Kumar":[1,0,1,0]},
+      jun14: {"Kunal Chavan":[8,0,6,2],"Chetan Salvi":[4,2,2,0],"Selwyn Moses":[3,0,3,0],"Priyanka Dubey":[2,0,2,0],"Abhay Kumar":[1,0,0,1]},
+      jun07: {"Kunal Chavan":[8,0,6,2],"Abhay Kumar":[5,1,4,0],"Chetan Salvi":[5,1,3,1],"Priyanka Dubey":[4,1,3,0],"Selwyn Moses":[3,0,3,0]},
+      may31: {"Chetan Salvi":[9,4,4,1],"Kunal Chavan":[6,1,5,0],"Priyanka Dubey":[4,3,1,0],"Selwyn Moses":[2,1,1,0],"Abhay Kumar":[2,0,2,0]},
+      may24: {"Chetan Salvi":[11,2,8,1],"Abhay Kumar":[8,3,5,0],"Priyanka Dubey":[7,2,5,0],"Selwyn Moses":[5,1,4,0],"Kunal Chavan":[4,1,3,0]}
+    },
+    resTime: {} // not available at week granularity
+  },
+  month: {
+    order: ['jun26','may26','apr26','mar26','feb26'],
+    labels: {jun26:"June 2026",may26:"May 2026",apr26:"April 2026",mar26:"March 2026",feb26:"February 2026"},
+    t1: {
+      jun26: {"Karthik Haralayya":[61,13,0,74,82.4],"Nesara Nagaraju":[50,11,0,61,82.0],"Sobiya Khan":[31,7,9,47,66.0],"Nidhi Mahankali":[36,10,1,47,76.6],"Amruth Lakshman":[29,14,0,43,67.4],"Manjunath N":[31,3,2,36,86.1],"Vinodakumara A":[25,8,0,33,75.8],"Anmol Tanwer":[16,5,2,23,69.6],"Manoj GH":[18,0,2,20,90.0],"Lavanya TU":[13,5,2,20,65.0],"Vishakha K":[11,4,1,16,68.8],"Abdul Rahaman":[8,1,1,10,80.0]},
+      may26: {"Karthik Haralayya":[39,23,0,62,62.9],"Vishakha K":[43,16,1,60,71.7],"Nidhi Mahankali":[38,19,2,59,64.4],"Nesara Nagaraju":[31,16,0,47,66.0],"Manoj GH":[31,13,1,45,68.9],"Lavanya TU":[32,11,0,43,74.4],"Amruth Lakshman":[29,12,0,41,70.7],"Vinodakumara A":[27,8,0,35,77.1],"Anmol Tanwer":[19,12,3,34,55.9],"Manjunath N":[23,9,1,33,69.7],"Abdul Rahaman":[20,4,5,29,69.0],"Sobiya Khan":[12,2,5,19,63.2]},
+      apr26: {"Nesara Nagaraju":[41,14,0,55,74.5],"Karthik Haralayya":[36,16,0,52,69.2],"Lavanya TU":[35,14,0,49,71.4],"Manoj GH":[28,19,0,47,59.6],"Manjunath N":[28,15,1,44,63.6],"Nidhi Mahankali":[27,14,2,43,62.8],"Abdul Rahaman":[27,9,4,40,67.5],"Amruth Lakshman":[21,14,1,36,58.3],"Anmol Tanwer":[24,9,2,35,68.6],"Vishakha K":[21,11,1,33,63.6],"Vinodakumara A":[14,12,0,26,53.8],"Sobiya Khan":[7,5,0,12,58.3]},
+      mar26: {"Manjunath N":[54,21,0,75,72.0],"Nesara Nagaraju":[38,22,0,60,63.3],"Abdul Rahaman":[45,12,1,58,77.6],"Lavanya TU":[37,17,0,54,68.5],"Amruth Lakshman":[30,19,1,50,60.0],"Manoj GH":[28,21,0,49,57.1],"Vinodakumara A":[25,12,0,37,67.6],"Vishakha K":[22,13,1,36,61.1],"Karthik Haralayya":[17,15,1,33,51.5],"Anmol Tanwer":[16,9,0,25,64.0],"Nidhi Mahankali":[17,6,0,23,73.9]},
+      feb26: {"Anmol Tanwer":[43,18,0,61,70.5],"Vishakha K":[45,15,0,60,75.0],"Manoj GH":[35,25,0,60,58.3],"Abdul Rahaman":[37,20,1,58,63.8],"Lavanya TU":[31,17,0,48,64.6],"Vinodakumara A":[24,23,0,47,51.1],"Nesara Nagaraju":[27,16,0,43,62.8],"Karthik Haralayya":[27,16,0,43,62.8],"Nidhi Mahankali":[26,10,0,36,72.2],"Manjunath N":[25,6,0,31,80.6],"Amruth Lakshman":[20,10,0,30,66.7]}
+    },
+    t2: {
+      jun26: {"Kunal Chavan":[32,1,25,6],"Chetan Salvi":[23,9,11,3],"Selwyn Moses":[16,1,15,0],"Priyanka Dubey":[13,6,6,1],"Abhay Kumar":[9,1,7,1]},
+      may26: {"Chetan Salvi":[37,8,28,1],"Kunal Chavan":[29,3,25,1],"Priyanka Dubey":[27,9,18,0],"Selwyn Moses":[26,6,18,2],"Abhay Kumar":[25,9,16,0]},
+      apr26: {"Priyanka Dubey":[44,12,32,0],"Chetan Salvi":[33,18,15,0],"Kunal Chavan":[28,2,26,0],"Selwyn Moses":[28,7,21,0],"Abhay Kumar":[18,2,16,0]},
+      mar26: {"Kunal Chavan":[46,6,38,2],"Abhay Kumar":[41,7,34,0],"Selwyn Moses":[29,3,25,1],"Priyanka Dubey":[29,9,20,0],"Chetan Salvi":[22,4,18,0]},
+      feb26: {"Abhay Kumar":[50,9,41,0],"Selwyn Moses":[44,8,35,1],"Chetan Salvi":[33,12,21,0],"Kunal Chavan":[31,3,28,0],"Priyanka Dubey":[20,7,13,0]}
+    },
+    resTime: {
+      jun26: {"Karthik Haralayya":2.34,"Nesara Nagaraju":3.22,"Nidhi Mahankali":4.00,"Sobiya Khan":5.19,"Amruth Lakshman":5.93,"Manjunath N":2.90,"Vinodakumara A":5.96,"Anmol Tanwer":4.29,"Manoj GH":4.28,"Lavanya TU":6.43,"Vishakha K":10.09,"Abdul Rahaman":5.00},
+      may26: {"Karthik Haralayya":2.90,"Vishakha K":4.93,"Nidhi Mahankali":3.68,"Nesara Nagaraju":2.97,"Manoj GH":4.39,"Lavanya TU":4.34,"Amruth Lakshman":8.10,"Vinodakumara A":6.11,"Anmol Tanwer":5.58,"Manjunath N":4.26,"Abdul Rahaman":9.25,"Sobiya Khan":5.83},
+      apr26: {"Nesara Nagaraju":3.41,"Karthik Haralayya":2.67,"Lavanya TU":4.91,"Manoj GH":5.25,"Manjunath N":2.32,"Nidhi Mahankali":3.44,"Abdul Rahaman":5.26,"Amruth Lakshman":5.90,"Anmol Tanwer":5.21,"Vishakha K":5.95,"Vinodakumara A":5.50,"Sobiya Khan":3.57},
+      mar26: {"Manjunath N":4.24,"Abdul Rahaman":5.00,"Nesara Nagaraju":4.05,"Lavanya TU":6.89,"Amruth Lakshman":5.80,"Manoj GH":5.43,"Vinodakumara A":8.24,"Vishakha K":6.23,"Karthik Haralayya":4.71,"Nidhi Mahankali":4.24,"Anmol Tanwer":5.50},
+      feb26: {"Vishakha K":6.76,"Anmol Tanwer":4.26,"Abdul Rahaman":6.30,"Manoj GH":4.09,"Lavanya TU":6.39,"Nesara Nagaraju":3.04,"Karthik Haralayya":5.37,"Nidhi Mahankali":4.00,"Manjunath N":4.40,"Vinodakumara A":9.42,"Amruth Lakshman":11.25}
     }
-    render(data);
-  } catch (err) {
-    content.innerHTML = `<div class="error-box">
-      <strong>Couldn't load live data.</strong><br>
-      ${err.message}<br><br>
-      Common causes: the Cloud Function isn't deployed yet, environment variables
-      (SF_CLIENT_ID / SF_CLIENT_SECRET / SF_REFRESH_TOKEN / SF_LOGIN_URL) aren't set in this
-      Launch environment, or the Salesforce refresh token has expired and needs regenerating.
-    </div>`;
-    subtitleText.textContent = 'Live data unavailable';
+  },
+  quarter: {
+    order: ['q2fy26','q1fy26'],
+    labels: {q2fy26:"Q2 FY26 (May-Jul, in progress)",q1fy26:"Q1 FY26 (Feb-Apr)"},
+    t1: {
+      q2fy26: {"Karthik Haralayya":[100,36,0,136,73.5],"Nesara Nagaraju":[81,27,0,108,75.0],"Nidhi Mahankali":[74,29,3,106,69.8],"Amruth Lakshman":[58,26,0,84,69.0],"Vishakha K":[54,20,2,76,71.1],"Manjunath N":[54,12,3,69,78.3],"Vinodakumara A":[52,16,0,68,76.5],"Sobiya Khan":[43,9,14,66,65.2],"Manoj GH":[49,13,3,65,75.4],"Lavanya TU":[45,16,2,63,71.4],"Anmol Tanwer":[35,17,5,57,61.4],"Abdul Rahaman":[28,5,6,39,71.8]},
+      q1fy26: {"Nesara Nagaraju":[106,52,0,158,67.1],"Manoj GH":[91,65,0,156,58.3],"Abdul Rahaman":[109,41,6,156,69.9],"Lavanya TU":[103,48,0,151,68.2],"Manjunath N":[107,42,1,150,71.3],"Vishakha K":[88,39,2,129,68.2],"Karthik Haralayya":[80,47,1,128,62.5],"Anmol Tanwer":[83,36,2,121,68.6],"Amruth Lakshman":[71,43,2,116,61.2],"Vinodakumara A":[63,47,0,110,57.3],"Nidhi Mahankali":[70,30,2,102,68.6],"Sobiya Khan":[7,5,0,12,58.3]}
+    },
+    t2: {
+      q2fy26: {"Kunal Chavan":[61,4,50,7],"Chetan Salvi":[60,17,39,4],"Selwyn Moses":[42,7,33,2],"Priyanka Dubey":[40,15,24,1],"Abhay Kumar":[34,10,23,1]},
+      q1fy26: {"Abhay Kumar":[109,18,91,0],"Kunal Chavan":[105,11,92,2],"Selwyn Moses":[101,18,81,2],"Priyanka Dubey":[93,28,65,0],"Chetan Salvi":[88,34,54,0]}
+    },
+    resTime: {
+      q2fy26: {"Amruth Lakshman":7.01,"Lavanya TU":4.94,"Manoj GH":4.35,"Nidhi Mahankali":3.84,"Karthik Haralayya":2.56,"Abdul Rahaman":8.04,"Vishakha K":5.98,"Nesara Nagaraju":3.12,"Sobiya Khan":5.37,"Vinodakumara A":6.04,"Anmol Tanwer":4.99,"Manjunath N":3.48},
+      q1fy26: {"Amruth Lakshman":7.36,"Lavanya TU":6.07,"Manoj GH":4.86,"Nidhi Mahankali":3.84,"Karthik Haralayya":4.01,"Abdul Rahaman":5.51,"Vishakha K":6.43,"Nesara Nagaraju":3.55,"Sobiya Khan":3.57,"Vinodakumara A":8.08,"Anmol Tanwer":4.77,"Manjunath N":3.77}
+    }
   }
+};
+
+let currentView = 'month';
+let currentTier = 'T1';
+let personalChart = null, rankChartInst = null;
+
+const viewWeekBtn = document.getElementById('viewWeekBtn');
+const viewMonthBtn = document.getElementById('viewMonthBtn');
+const viewQuarterBtn = document.getElementById('viewQuarterBtn');
+const tierT1Btn = document.getElementById('tierT1Btn');
+const tierT2Btn = document.getElementById('tierT2Btn');
+const periodSelect = document.getElementById('periodSelect');
+const agentSelect = document.getElementById('agentSelect');
+
+function tierKey() { return currentTier === 'T1' ? 't1' : 't2'; }
+
+function computeStats(periodKey) {
+  const view = periodData[currentView];
+  const dataObj = view[tierKey()][periodKey] || {};
+  const names = Object.keys(dataObj);
+  const n = names.length;
+  const pctIdx = currentTier === 'T1' ? 4 : null;
+  const totalIdx = currentTier === 'T1' ? 3 : 0;
+  function pctOf(row) {
+    if (currentTier === 'T1') return row[4];
+    const [recv, solved, esc3, open] = row;
+    const handled = solved + esc3;
+    return handled > 0 ? Math.round(solved/handled*1000)/10 : 0;
+  }
+  const solveRank = [...names].sort((a,b) => pctOf(dataObj[b]) - pctOf(dataObj[a]));
+  const volRank = [...names].sort((a,b) => dataObj[b][totalIdx] - dataObj[a][totalIdx]);
+  const teamAvgSolve = n ? Math.round((names.reduce((s,nm)=>s+pctOf(dataObj[nm]),0)/n)*10)/10 : 0;
+  const teamAvgVol = n ? Math.round((names.reduce((s,nm)=>s+dataObj[nm][totalIdx],0)/n)*10)/10 : 0;
+  let resRank = null, teamAvgRes = null;
+  const resObj = view.resTime[periodKey];
+  if (currentTier === 'T1' && resObj) {
+    const withRes = names.filter(nm => resObj[nm] !== undefined);
+    resRank = [...withRes].sort((a,b) => resObj[a] - resObj[b]);
+    teamAvgRes = withRes.length ? Math.round((withRes.reduce((s,nm)=>s+resObj[nm],0)/withRes.length)*100)/100 : null;
+  }
+  return { dataObj, names, n, solveRank, volRank, resRank, teamAvgSolve, teamAvgVol, teamAvgRes, pctOf, totalIdx, resObj };
 }
 
-function render(data) {
-  const { kpi, t1Agents, generatedAt } = data;
-  const generatedTime = new Date(generatedAt).toLocaleString();
-  subtitleText.textContent = `Live as of ${generatedTime}`;
-
-  let html = `
-    <div class="kpi-row">
-      <div class="kpi-card">
-        <p class="kpi-label">Total tickets</p>
-        <p class="kpi-value">${kpi.total}</p>
-      </div>
-      <div class="kpi-card">
-        <p class="kpi-label">Resolved by T1</p>
-        <p class="kpi-value">${kpi.t1} <span class="kpi-pct">${kpi.t1Pct}%</span></p>
-      </div>
-      <div class="kpi-card">
-        <p class="kpi-label">Escalated to T2</p>
-        <p class="kpi-value">${kpi.t2} <span class="kpi-pct">${kpi.t2Pct}%</span></p>
-      </div>
-      <div class="kpi-card">
-        <p class="kpi-label">Escalated to T3</p>
-        <p class="kpi-value">${kpi.t3} <span class="kpi-pct">${kpi.t3Pct}%</span></p>
-      </div>
-    </div>
-
-    <div class="card">
-      <p class="section-title">T1 agents: solved vs escalated</p>
-      <p class="section-desc">T1 solve rate: ${kpi.t1Solved} of ${kpi.t1} tickets Solved/Closed (${kpi.t1SolvedPct}%). JIRA-Key-corrected — cases with a linked JIRA ticket count as escalated to T3, not solved.</p>
-      <table>
-        <tr><th>Agent</th><th class="num">Solved</th><th class="num">Esc. T2</th><th class="num">Esc. T3 (direct)</th><th class="num">Total</th><th class="num">Solve %</th></tr>
-        ${t1Agents.map(a => `<tr>
-          <td>${a.name}</td><td class="num">${a.solved}</td><td class="num">${a.esc2}</td>
-          <td class="num">${a.esc3}</td><td class="num">${a.total}</td><td class="num">${a.solvePct}%</td>
-        </tr>`).join('')}
-      </table>
-    </div>
-  `;
-  content.innerHTML = html;
+function populatePeriodSelect() {
+  const view = periodData[currentView];
+  periodSelect.innerHTML = '';
+  view.order.forEach(key => {
+    const opt = document.createElement('option');
+    opt.value = key;
+    opt.textContent = view.labels[key];
+    periodSelect.appendChild(opt);
+  });
 }
 
-periodSelect.addEventListener('change', (e) => loadData(e.target.value));
-loadData('last_week');
+function populateAgentSelect() {
+  const periodKey = periodSelect.value;
+  const stats = computeStats(periodKey);
+  const currentVal = agentSelect.value;
+  agentSelect.innerHTML = '';
+  stats.names.forEach(name => {
+    const opt = document.createElement('option');
+    opt.value = name;
+    opt.textContent = name;
+    agentSelect.appendChild(opt);
+  });
+  if (stats.names.includes(currentVal)) agentSelect.value = currentVal;
+}
+
+function setView(view) {
+  currentView = view;
+  viewWeekBtn.classList.toggle('active', view === 'week');
+  viewMonthBtn.classList.toggle('active', view === 'month');
+  viewQuarterBtn.classList.toggle('active', view === 'quarter');
+  populatePeriodSelect();
+  populateAgentSelect();
+  renderAll();
+}
+function setTier(tier) {
+  currentTier = tier;
+  tierT1Btn.classList.toggle('active', tier === 'T1');
+  tierT2Btn.classList.toggle('active', tier === 'T2');
+  populateAgentSelect();
+  renderAll();
+}
+viewWeekBtn.addEventListener('click', () => setView('week'));
+viewMonthBtn.addEventListener('click', () => setView('month'));
+viewQuarterBtn.addEventListener('click', () => setView('quarter'));
+tierT1Btn.addEventListener('click', () => setTier('T1'));
+tierT2Btn.addEventListener('click', () => setTier('T2'));
+periodSelect.addEventListener('change', () => { populateAgentSelect(); renderAll(); });
+agentSelect.addEventListener('change', () => renderAll());
+
+function renderAll() {
+  const periodKey = periodSelect.value;
+  const name = agentSelect.value;
+  if (!name) return;
+  const view = periodData[currentView];
+  document.getElementById('agentTitle').textContent = name;
+  document.getElementById('periodSubtitle').textContent = `Individual performance, ranking, and trend — ${view.labels[periodKey]}`;
+  document.getElementById('rankChartTitle').textContent = `Where they stand vs. the team (${view.labels[periodKey]})`;
+
+  const stats = computeStats(periodKey);
+  const row = stats.dataObj[name];
+  const isT1 = currentTier === 'T1';
+  const pct = stats.pctOf(row);
+  const total = row[stats.totalIdx];
+  const solveRankNum = stats.solveRank.indexOf(name) + 1;
+  const volRankNum = stats.volRank.indexOf(name) + 1;
+  const myRes = (isT1 && stats.resObj) ? stats.resObj[name] : undefined;
+  const resRankNum = (isT1 && stats.resRank && myRes !== undefined) ? stats.resRank.indexOf(name) + 1 : null;
+
+  const solveVsAvg = Math.round((pct - stats.teamAvgSolve)*10)/10;
+  const volVsAvg = Math.round((total - stats.teamAvgVol)*10)/10;
+  let kpiHtml = `
+    <div class="kpi-card">
+      <p class="kpi-label">Cases handled</p>
+      <p class="kpi-value">${total}</p>
+      <p class="kpi-sub ${volVsAvg>=0?'vs-avg-up':'vs-avg-down'}">${volVsAvg>=0?'+':''}${volVsAvg} vs team avg (${stats.teamAvgVol})</p>
+    </div>
+    <div class="kpi-card">
+      <p class="kpi-label">Solve rate</p>
+      <p class="kpi-value">${pct}%</p>
+      <p class="kpi-sub ${solveVsAvg>=0?'vs-avg-up':'vs-avg-down'}">${solveVsAvg>=0?'+':''}${solveVsAvg}pt vs team avg (${stats.teamAvgSolve}%)</p>
+    </div>
+    <div class="kpi-card">
+      <p class="kpi-label">Solve rate rank</p>
+      <p class="kpi-value">#${solveRankNum} <span style="font-size:15px;color:#9A9998;">of ${stats.n}</span></p>
+      <p class="kpi-sub">By ${currentTier} team, this period</p>
+    </div>`;
+  if (isT1 && myRes !== undefined) {
+    const resVsAvg = Math.round((myRes - stats.teamAvgRes)*100)/100;
+    kpiHtml += `
+    <div class="kpi-card">
+      <p class="kpi-label">Avg resolution time</p>
+      <p class="kpi-value">${myRes.toFixed(1)}d</p>
+      <p class="kpi-sub ${resVsAvg<=0?'vs-avg-up':'vs-avg-down'}">${resVsAvg>=0?'+':''}${resVsAvg}d vs team avg (${stats.teamAvgRes}d)</p>
+    </div>`;
+  } else {
+    kpiHtml += `
+    <div class="kpi-card">
+      <p class="kpi-label">Volume rank</p>
+      <p class="kpi-value">#${volRankNum} <span style="font-size:15px;color:#9A9998;">of ${stats.n}</span></p>
+      <p class="kpi-sub">${isT1 ? 'Resolution time not tracked at this granularity' : 'By ' + currentTier + ' team, this period'}</p>
+    </div>`;
+  }
+  document.getElementById('kpiRow').innerHTML = kpiHtml;
+
+  // Personal trend chart (always Feb-Jun monthly, regardless of selector)
+  const solveTrendObj = isT1 ? t1SolveTrend : t2SolveTrend;
+  const solveTrend = trendMonths.map(m => solveTrendObj[name] && solveTrendObj[name][m] !== undefined ? solveTrendObj[name][m] : null);
+  const datasets = [{
+    label: 'Solve rate %', data: solveTrend, borderColor: '#AC75FF', backgroundColor: '#AC75FF',
+    borderWidth: 2, pointRadius: 4, tension: 0.25, spanGaps: false, yAxisID: 'y'
+  }];
+  if (isT1) {
+    const resTrend = trendMonths.map(m => t1ResTrend[name] && t1ResTrend[name][m] !== undefined ? t1ResTrend[name][m] : null);
+    datasets.push({
+      label: 'Avg resolution days', data: resTrend, borderColor: '#B0F7BA', backgroundColor: '#B0F7BA',
+      borderWidth: 2, pointRadius: 4, tension: 0.25, spanGaps: false, yAxisID: 'y1'
+    });
+  }
+  if (personalChart) personalChart.destroy();
+  personalChart = new Chart(document.getElementById('personalTrendChart'), {
+    type: 'line',
+    data: { labels: trendMonths, datasets },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: true, labels: { color: '#9A9998', font: { size: 11 }, boxWidth: 10, boxHeight: 10 } }, tooltip: tooltipStyle },
+      scales: {
+        x: { ticks: { font: { size: 11 } }, grid: { display: false } },
+        y: { position: 'left', ticks: { font: { size: 11 }, callback: (v)=>v+'%' }, grid: gridStyle, title: { display: true, text: 'Solve rate %', color: '#797777', font: { size: 10 } } },
+        y1: { position: 'right', display: isT1, ticks: { font: { size: 11 }, callback: (v)=>v+'d' }, grid: { display: false }, title: { display: true, text: 'Days', color: '#797777', font: { size: 10 } } }
+      }
+    }
+  });
+
+  // Rank comparison chart
+  const rankLabels = (isT1 && myRes !== undefined) ? ['Solve rate %', 'Volume', 'Resolution days (inv.)'] : ['Solve rate %', 'Volume'];
+  const meVals = (isT1 && myRes !== undefined) ? [pct, total, Math.round((20 - myRes)*10)/10] : [pct, total];
+  const avgVals = (isT1 && myRes !== undefined) ? [stats.teamAvgSolve, stats.teamAvgVol, Math.round((20 - stats.teamAvgRes)*10)/10] : [stats.teamAvgSolve, stats.teamAvgVol];
+  if (rankChartInst) rankChartInst.destroy();
+  rankChartInst = new Chart(document.getElementById('rankChart'), {
+    type: 'bar',
+    data: {
+      labels: rankLabels,
+      datasets: [
+        { label: name, data: meVals, backgroundColor: '#AC75FF', borderRadius: 4, maxBarThickness: 40 },
+        { label: 'Team average', data: avgVals, backgroundColor: '#525B89', borderRadius: 4, maxBarThickness: 40 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: true, position: 'top', labels: { color: '#9A9998', font: { size: 11 }, boxWidth: 10, boxHeight: 10 } }, tooltip: { ...tooltipStyle, callbacks: { label: (ctx) => {
+        if (ctx.label === 'Resolution days (inv.)') { const raw = ctx.datasetIndex===0 ? myRes : stats.teamAvgRes; return `${ctx.dataset.label}: ${raw.toFixed(1)}d (lower is better)`; }
+        return `${ctx.dataset.label}: ${ctx.parsed.y}`;
+      } } } },
+      scales: { x: { ticks: { font: { size: 11 } }, grid: { display: false } }, y: { ticks: { font: { size: 11 } }, grid: gridStyle, beginAtZero: true } }
+    }
+  });
+
+  // Insights (based on the always-on Feb-Jun monthly trend, regardless of selector)
+  const improving = [];
+  const improve = [];
+  const trendKeys = trendMonths.filter(m => solveTrendObj[name] && solveTrendObj[name][m] !== undefined);
+  if (trendKeys.length >= 2) {
+    const lastM = trendKeys[trendKeys.length-1], prevM = trendKeys[trendKeys.length-2];
+    const solveDelta = Math.round((solveTrendObj[name][lastM] - solveTrendObj[name][prevM])*10)/10;
+    if (solveDelta > 0) improving.push(`Solve rate improved ${solveDelta}pt vs ${prevM} (${solveTrendObj[name][prevM]}% → ${solveTrendObj[name][lastM]}%).`);
+    else if (solveDelta < 0) improve.push(`Solve rate declined ${Math.abs(solveDelta)}pt vs ${prevM} (${solveTrendObj[name][prevM]}% → ${solveTrendObj[name][lastM]}%).`);
+    if (isT1) {
+      const resDelta = Math.round((t1ResTrend[name][lastM] - t1ResTrend[name][prevM])*100)/100;
+      if (resDelta < 0) improving.push(`Resolution time improved by ${Math.abs(resDelta).toFixed(1)} days vs ${prevM} (faster).`);
+      else if (resDelta > 0) improve.push(`Resolution time got ${resDelta.toFixed(1)} days slower vs ${prevM}.`);
+    }
+  }
+  if (solveRankNum <= Math.ceil(stats.n/3)) improving.push(`Ranks #${solveRankNum} of ${stats.n} on solve rate this period — top third of the ${currentTier} team.`);
+  if (solveRankNum >= stats.n - Math.floor(stats.n/3) + 1) improve.push(`Ranks #${solveRankNum} of ${stats.n} on solve rate this period — bottom third of the ${currentTier} team.`);
+  if (pct < stats.teamAvgSolve) improve.push(`Solve rate (${pct}%) is below the ${currentTier} team average (${stats.teamAvgSolve}%) this period.`);
+  else improving.push(`Solve rate (${pct}%) is above the ${currentTier} team average (${stats.teamAvgSolve}%) this period.`);
+  if (isT1 && resRankNum) {
+    if (resRankNum <= Math.ceil(stats.resRank.length/3)) improving.push(`Among the fastest resolvers on the team this period — #${resRankNum} of ${stats.resRank.length}.`);
+    if (resRankNum >= stats.resRank.length - Math.floor(stats.resRank.length/3) + 1) improve.push(`Resolution time ranks #${resRankNum} of ${stats.resRank.length} this period — slower than most of the team.`);
+  }
+
+  const improvingList = document.getElementById('improvingList');
+  const improveList = document.getElementById('improveList');
+  improvingList.innerHTML = improving.length ? improving.map(t => `<li>${t}</li>`).join('') : '<li style="border:none;color:#797777;font-style:italic;">Nothing notably improving this period.</li>';
+  improveList.innerHTML = improve.length ? improve.map(t => `<li>${t}</li>`).join('') : '<li style="border:none;color:#797777;font-style:italic;">No flags — performing at or above expectations across the board.</li>';
+
+  renderLeaderboard(periodKey, stats, isT1, name);
+}
+
+function normScore(val, vals, invert) {
+  const lo = Math.min(...vals), hi = Math.max(...vals);
+  if (hi === lo) return 100;
+  const score = (val - lo) / (hi - lo) * 100;
+  return invert ? 100 - score : score;
+}
+
+function renderLeaderboard(periodKey, stats, isT1, selectedName) {
+  const view = periodData[currentView];
+  document.getElementById('leaderboardPeriodLabel').textContent = view.labels[periodKey];
+  document.getElementById('resTimeHeaderCell').textContent = isT1 ? 'Res. Days' : 'Res. Days (N/A)';
+
+  const names = stats.names;
+  const solvedVals = names.map(n => stats.pctOf ? stats.dataObj[n][isT1 ? 0 : 1] : 0);
+  // recompute solved and rate cleanly
+  const rows = names.map(n => {
+    const row = stats.dataObj[n];
+    const solved = isT1 ? row[0] : row[1];
+    const total = row[stats.totalIdx];
+    const rate = stats.pctOf(row);
+    const res = (isT1 && stats.resObj) ? stats.resObj[n] : undefined;
+    return { name: n, solved, total, rate, res };
+  });
+  const solvedArr = rows.map(r => r.solved);
+  const rateArr = rows.map(r => r.rate);
+  const resArr = rows.filter(r => r.res !== undefined).map(r => r.res);
+
+  rows.forEach(r => {
+    const volS = normScore(r.solved, solvedArr, false);
+    const rateS = normScore(r.rate, rateArr, false);
+    if (isT1 && r.res !== undefined && resArr.length > 1) {
+      const resS = normScore(r.res, resArr, true);
+      r.composite = Math.round((0.40*volS + 0.35*rateS + 0.25*resS)*10)/10;
+    } else {
+      r.composite = Math.round((0.55*volS + 0.45*rateS)*10)/10;
+    }
+  });
+  rows.sort((a,b) => b.composite - a.composite);
+
+  const tbody = document.getElementById('leaderboardBody');
+  tbody.innerHTML = '';
+  rows.forEach((r, i) => {
+    const isSelected = r.name === selectedName;
+    const rowStyle = isSelected ? 'background:#3A2E52;' : (i % 2 === 0 ? 'background:#211F2E33;' : '');
+    tbody.innerHTML += `<tr style="${rowStyle}">
+      <td style="padding:9px 10px;border-bottom:1px solid #393838;">#${i+1}</td>
+      <td style="padding:9px 10px;border-bottom:1px solid #393838;font-weight:${isSelected?'700':'500'};color:${isSelected?'#AC75FF':'#F5F5F4'};">${r.name}${isSelected?' ← selected':''}</td>
+      <td style="padding:9px 10px;border-bottom:1px solid #393838;text-align:right;">${r.solved}</td>
+      <td style="padding:9px 10px;border-bottom:1px solid #393838;text-align:right;">${r.total}</td>
+      <td style="padding:9px 10px;border-bottom:1px solid #393838;text-align:right;">${r.rate}%</td>
+      <td style="padding:9px 10px;border-bottom:1px solid #393838;text-align:right;">${r.res !== undefined ? r.res.toFixed(2)+'d' : '—'}</td>
+      <td style="padding:9px 10px;border-bottom:1px solid #393838;text-align:right;font-weight:700;color:#AC75FF;">${r.composite}</td>
+    </tr>`;
+  });
+}
+
+// ---------- init ----------
+populatePeriodSelect();
+populateAgentSelect();
+renderAll();
 </script>
 </body>
 </html>
