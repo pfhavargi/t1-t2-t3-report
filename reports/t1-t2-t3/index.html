@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>T1 → T2 → T3 Escalation Report (Live)</title>
+<title>T1 → T2 → T3 Escalation & Performance Report</title>
 <style>
   * { box-sizing: border-box; }
   body {
@@ -13,47 +13,92 @@
     padding: 32px 24px 64px;
   }
   .container { max-width: 1180px; margin: 0 auto; }
-  .header-row { display: flex; justify-content: space-between; align-items: flex-end; gap: 20px; flex-wrap: wrap; margin-bottom: 28px; }
-  .eyebrow { color: #AC75FF; font-size: 12px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; margin: 0 0 8px; }
+  .header-row { display: flex; justify-content: space-between; align-items: flex-end; gap: 20px; flex-wrap: wrap; margin-bottom: 32px; }
+  .eyebrow {
+    color: #AC75FF;
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin: 0 0 8px;
+  }
   h1 { font-size: 28px; font-weight: 500; margin: 0 0 6px; color: #F5F5F4; }
   .subtitle { color: #9A9998; font-size: 14px; margin: 0; }
-  .live-badge {
-    display: inline-flex; align-items: center; gap: 6px; background: #1E3B2A; color: #7FE08C;
-    font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 20px; margin-left: 10px;
-  }
-  .live-dot { width: 6px; height: 6px; border-radius: 50%; background: #7FE08C; animation: pulse 1.5s infinite; }
-  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
 
-  select#periodSelect {
-    background: #292928; color: #F5F5F4; border: 1px solid #393838; border-radius: 8px;
-    padding: 10px 14px; font-size: 14px; font-family: inherit; min-width: 200px; cursor: pointer;
+  .week-picker { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
+  .week-picker label { color: #9A9998; font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; }
+  select#weekSelect {
+    background: #292928;
+    color: #F5F5F4;
+    border: 1px solid #393838;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 14px;
+    font-family: inherit;
+    min-width: 260px;
+    cursor: pointer;
   }
+  select#weekSelect:focus { outline: 2px solid #AC75FF; }
 
-  .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin: 0 0 28px; }
-  .kpi-card { background: #292928; border-radius: 12px; padding: 18px 20px; }
+  .view-toggle { display: flex; background: #292928; border-radius: 8px; padding: 3px; border: 1px solid #393838; }
+  .view-btn {
+    background: transparent; color: #9A9998; border: none; border-radius: 6px;
+    padding: 7px 16px; font-size: 13px; font-weight: 500; font-family: inherit;
+    cursor: pointer; transition: all 0.15s;
+  }
+  .view-btn.active { background: #AC75FF; color: #1A1919; }
+
+  .kpi-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin: 28px 0 36px;
+  }
+  .kpi-card {
+    background: #292928;
+    border-radius: 12px;
+    padding: 18px 20px;
+  }
   .kpi-label { color: #9A9998; font-size: 12px; margin: 0 0 8px; text-transform: uppercase; letter-spacing: 0.03em; }
-  .kpi-value { font-size: 28px; font-weight: 500; margin: 0; color: #F5F5F4; }
+  .kpi-value { font-size: 30px; font-weight: 500; margin: 0; color: #F5F5F4; }
   .kpi-pct { font-size: 16px; color: #899CFA; }
   .kpi-sub { color: #797777; font-size: 12px; margin: 6px 0 0; }
 
-  .card { background: #292928; border-radius: 12px; padding: 20px 24px; }
-  .section-title { font-size: 16px; font-weight: 500; margin: 0 0 4px; color: #F5F5F4; }
+  .section { margin-bottom: 44px; }
+  .section-title { font-size: 18px; font-weight: 500; margin: 0 0 4px; color: #F5F5F4; }
   .section-desc { color: #9A9998; font-size: 13px; margin: 0 0 18px; }
 
-  table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  th, td { text-align: left; padding: 9px 10px; border-bottom: 1px solid #393838; }
-  th { color: #9A9998; font-weight: 500; font-size: 11px; text-transform: uppercase; }
-  td.num, th.num { text-align: right; }
+  .card {
+    background: #292928;
+    border-radius: 12px;
+    padding: 20px 24px;
+  }
 
-  .status-box {
-    background: #292928; border-radius: 12px; padding: 40px; text-align: center;
-    color: #9A9998; font-size: 14px;
+  .chart-wrap { position: relative; width: 100%; }
+
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  @media (max-width: 900px) { .two-col { grid-template-columns: 1fr; } .kpi-row { grid-template-columns: repeat(2, 1fr); } }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 12px; }
+  th, td { text-align: left; padding: 9px 10px; border-bottom: 1px solid #393838; }
+  th { color: #9A9998; font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing: 0.03em; }
+  td { color: #F5F5F4; }
+  td.num, th.num { text-align: right; }
+  tr.total-row td { font-weight: 500; border-top: 1px solid #525152; color: #AC75FF; }
+
+  .footnote { color: #484747; font-size: 11px; margin-top: 10px; line-height: 1.5; }
+  .delta-up { color: #7FE08C; }
+  .delta-down { color: #FF8A8A; }
+  .cell-empty { color: #484747; text-align: center; }
+  .source-caption { text-align: center; color: #484747; font-size: 11px; margin-top: 40px; border-top: 1px solid #292928; padding-top: 16px; }
+  .placeholder {
+    color: #797777;
+    font-size: 13px;
+    text-align: center;
+    padding: 40px 20px;
+    border: 1px dashed #393838;
+    border-radius: 12px;
   }
-  .error-box {
-    background: #3A2222; border: 1px solid #5A3232; border-radius: 12px; padding: 20px 24px;
-    color: #FF8A8A; font-size: 13px; line-height: 1.6;
-  }
-  .footnote { color: #484747; font-size: 11px; margin-top: 14px; line-height: 1.6; }
 </style>
 </head>
 <body>
@@ -61,99 +106,1265 @@
 
   <div class="header-row">
     <div>
+      <div style="display:flex;flex-wrap:wrap;gap:0;margin-bottom:18px;"><a href="../../" style="display:inline-block;padding:6px 12px;border-radius:6px;font-size:12px;text-decoration:none;margin-right:4px;color:#9A9998;background:#292928;border:1px solid #393838;">Home</a><a href="../t1-t2-t3/" style="display:inline-block;padding:6px 12px;border-radius:6px;font-size:12px;text-decoration:none;margin-right:4px;background:#AC75FF;color:#1A1919;font-weight:600;">T1 → T2 → T3</a><a href="../issue-types/" style="display:inline-block;padding:6px 12px;border-radius:6px;font-size:12px;text-decoration:none;margin-right:4px;color:#9A9998;background:#292928;border:1px solid #393838;">Issue Types</a><a href="../cse-individual/" style="display:inline-block;padding:6px 12px;border-radius:6px;font-size:12px;text-decoration:none;margin-right:4px;color:#9A9998;background:#292928;border:1px solid #393838;">CSE Individual</a><a href="../okr/" style="display:inline-block;padding:6px 12px;border-radius:6px;font-size:12px;text-decoration:none;margin-right:4px;color:#9A9998;background:#292928;border:1px solid #393838;">OKR</a></div>
       <p class="eyebrow">T1 Support Performance</p>
-      <h1>T1 → T2 → T3 Escalation Report <span class="live-badge"><span class="live-dot"></span>LIVE</span></h1>
-      <p class="subtitle" id="subtitleText">Loading live data from Salesforce...</p>
+      <h1>T1 → T2 → T3 Escalation & Resolution Report</h1>
+      <p class="subtitle" id="subtitleText">Week of Jun 28 – Jul 4, 2026</p>
     </div>
-    <select id="periodSelect">
-      <option value="last_week">Last Week</option>
-      <option value="this_month">This Month (partial)</option>
-      <option value="last_month">Last Month</option>
-    </select>
+    <div class="week-picker">
+      <label>View by</label>
+      <div class="view-toggle">
+        <button id="viewWeekBtn" class="view-btn active">Week</button>
+        <button id="viewMonthBtn" class="view-btn">Month</button>
+        <button id="viewQuarterBtn" class="view-btn">Quarter</button>
+      </div>
+      <select id="weekSelect"></select>
+      <select id="monthSelect" style="display:none;"></select>
+      <select id="quarterSelect" style="display:none;"></select>
+    </div>
   </div>
 
-  <div id="content">
-    <div class="status-box">Connecting to Salesforce...</div>
+  <!-- KPI ROW -->
+  <div class="kpi-row" id="kpiRow"></div>
+
+  <!-- OVERALL DISTRIBUTION + T1 SOLVE RATE -->
+  <div class="section">
+    <p class="section-title">Overall ticket distribution</p>
+    <p class="section-desc" id="distDesc">Where tickets ended up across the T1 → T2 → T3 chain</p>
+    <div class="two-col">
+      <div class="card">
+        <div class="chart-wrap" style="height:260px;">
+          <canvas id="flowChart" role="img" aria-label="Bar chart of ticket distribution across T1, T2, T3"></canvas>
+        </div>
+      </div>
+      <div class="card">
+        <div class="chart-wrap" style="height:260px;">
+          <canvas id="solveChart" role="img" aria-label="Horizontal bar chart of T1 solved versus still open tickets"></canvas>
+        </div>
+        <p class="footnote" id="solveFootnote"></p>
+      </div>
+    </div>
   </div>
 
-  <p class="footnote">
-    This page calls a Contentstack Launch Cloud Function (<code>/escalation-data</code>) on load,
-    which authenticates to Salesforce and runs live SOQL queries — data shown is current as of
-    the moment this page was opened (cached at the edge for up to 5 minutes). This is a live
-    subset (KPIs + T1 agent solve/escalate table) of the full static report — month-over-month
-    trends, resolution time, CSAT, and T2 detail are not yet part of the live version.
-  </p>
+  <!-- T1 AGENT BREAKDOWN -->
+  <div class="section">
+    <p class="section-title">T1 agents: solved vs escalated to T2</p>
+    <p class="section-desc">Out of what each agent personally handled (solved + escalated only; still-open cases excluded). "Esc. T3 (direct)" = cases that show a JIRA Key while still on T1 — treated as escalated to T3 even though Team Responsible never changed, since a linked JIRA ticket means engineering was actually handling it.</p>
+    <div id="t1AgentSection" class="two-col">
+      <div class="card">
+        <div class="chart-wrap" style="height:320px;">
+          <canvas id="t1AgentChart" role="img" aria-label="Stacked bar chart of T1 agents showing solved vs escalated counts"></canvas>
+        </div>
+      </div>
+      <div class="card">
+        <table id="t1AgentTable">
+          <tr><th>Agent</th><th class="num">Solved</th><th class="num">Esc. T2</th><th class="num">Esc. T3 (direct)</th><th class="num">Total</th><th class="num">Solve %</th></tr>
+        </table>
+        <p class="footnote" id="t1AgentFootnote"></p>
+      </div>
+    </div>
+    <div id="t1AgentPlaceholder" class="placeholder" style="display:none;">
+      Per-agent breakdown is only available for the most recent week. Ask for a historical pull if you need this for an earlier week.
+    </div>
+  </div>
+
+  <!-- T2 AGENT BREAKDOWN -->
+  <div class="section">
+    <p class="section-title">T2 agents: solved vs escalated to T3</p>
+    <p class="section-desc">Of the tickets escalated from T1, how each T2 agent resolved theirs</p>
+    <div id="t2AgentSection" class="two-col">
+      <div class="card">
+        <div class="chart-wrap" style="height:260px;">
+          <canvas id="t2AgentChart" role="img" aria-label="Stacked bar chart of T2 agents showing solved, escalated to T3, and still open counts"></canvas>
+        </div>
+      </div>
+      <div class="card">
+        <table id="t2AgentTable">
+          <tr><th>Agent</th><th class="num">Received</th><th class="num">Solved</th><th class="num">→ T3</th><th class="num">Open</th></tr>
+        </table>
+        <p class="footnote" id="t2AgentFootnote"></p>
+      </div>
+    </div>
+    <div id="t2AgentPlaceholder" class="placeholder" style="display:none;">
+      Per-agent breakdown is only available for the most recent week. Ask for a historical pull if you need this for an earlier week.
+    </div>
+  </div>
+
+  <!-- MONTH-OVER-MONTH AGENT TREND (static, always full Feb-Jun view) -->
+  <div class="section">
+    <p class="section-title">T1 agents: solve rate trend, month over month</p>
+    <p class="section-desc">How much of what each T1 agent handles gets solved independently, vs. moved on to T2/T3 — tracked Feb through June so you can see who's trending up and who's trending down.</p>
+    <div class="card">
+      <div class="chart-wrap" style="height:340px;">
+        <canvas id="t1MomChart" role="img" aria-label="Line chart of each T1 agent's solve rate percentage from February through June"></canvas>
+      </div>
+    </div>
+    <div class="card" style="overflow-x:auto; margin-top:16px;">
+      <table id="momTrendTable">
+        <tr><th>Agent</th><th class="num">Feb</th><th class="num">Mar</th><th class="num">Apr</th><th class="num">May</th><th class="num">Jun</th></tr>
+      </table>
+    </div>
+    <p class="footnote">Solve % = Solved ÷ (Solved + Escalated to T2 + Escalated to T3 direct). Green = improved vs. prior month, red = declined. Figures reflect the JIRA-Key-corrected methodology (see note above).</p>
+  </div>
+
+  <!-- T2 MONTH-OVER-MONTH AGENT TREND (static, always full Feb-Jun view) -->
+  <div class="section">
+    <p class="section-title">T2 agents: solve rate trend, month over month</p>
+    <p class="section-desc">Same view for T2 — how much of what each agent handles gets solved at T2 vs. pushed on to T3.</p>
+    <div class="card">
+      <div class="chart-wrap" style="height:340px;">
+        <canvas id="t2MomChart" role="img" aria-label="Line chart of each T2 agent's solve rate percentage from February through June"></canvas>
+      </div>
+    </div>
+    <div class="card" style="overflow-x:auto; margin-top:16px;">
+      <table id="t2MomTrendTable">
+        <tr><th>Agent</th><th class="num">Feb</th><th class="num">Mar</th><th class="num">Apr</th><th class="num">May</th><th class="num">Jun</th></tr>
+      </table>
+    </div>
+    <p class="footnote">Solve % here is out of Solved + Escalated to T3 only (still-open cases excluded). Note the low baseline throughout — T2 solve rates sit well below T1's across every month, consistent with the pattern that most of what reaches T2 continues on to T3.</p>
+  </div>
+
+  <!-- RESOLUTION TIME TREND (static, always full Feb-Jun view) -->
+  <div class="section">
+    <p class="section-title">T1 agents: average resolution time, month over month</p>
+    <p class="section-desc">Average days to resolution for cases each agent actually solved themselves (JIRA-Key-corrected — same case set as the solve-rate table above). Lower is faster. This is a different lens from solve rate: an agent can have a high solve % but still take longer than peers to get there.</p>
+    <div class="card">
+      <div class="chart-wrap" style="height:340px;">
+        <canvas id="resTimeChart" role="img" aria-label="Line chart of each T1 agent's average days to resolution from February through June"></canvas>
+      </div>
+    </div>
+    <div class="card" style="overflow-x:auto; margin-top:16px;">
+      <table id="resTimeTable">
+        <tr><th>Agent</th><th class="num">Feb</th><th class="num">Mar</th><th class="num">Apr</th><th class="num">May</th><th class="num">Jun</th></tr>
+      </table>
+    </div>
+    <p class="footnote">Figures are average calendar days from case creation to resolution, for self-solved cases only (excludes cases later reclassified as direct-to-T3 via JIRA Key).</p>
+  </div>
+
+  <!-- CSAT ORG-WIDE TREND (static, always full Feb-Jun view) -->
+  <div class="section">
+    <p class="section-title">T1 CSAT trend, org-wide</p>
+    <p class="section-desc">% of CSAT survey respondents rating "Very Satisfied" or "Satisfied", across all T1 agents combined, by month.</p>
+    <div class="card">
+      <div class="chart-wrap" style="height:260px;">
+        <canvas id="csatChart" role="img" aria-label="Line chart of org-wide T1 CSAT positive rating percentage from February through June"></canvas>
+      </div>
+    </div>
+    <p class="footnote">Shown org-wide, not per-agent, because survey response volume is very low relative to case volume (7-10 responses per month across all of T1 combined, out of hundreds of cases handled) — too sparse for individual agent CSAT to be statistically meaningful. Treat month-to-month movement here as a weak signal, not a firm trend, until response volume improves.</p>
+  </div>
+
+  <!-- TREND (static across all weeks) -->
+  <div class="section">
+    <p class="section-title">6-week trend: volume & escalation rate</p>
+    <p class="section-desc">Escalation rate = (T2 + T3 current ownership) ÷ total tickets for that week. This chart doesn't change with the selector above — it's always the full 6-week view.</p>
+    <div class="card">
+      <div class="chart-wrap" style="height:300px;">
+        <canvas id="trendChart" role="img" aria-label="Combo chart over 6 weeks: bar for weekly ticket volume, line for escalation rate percentage"></canvas>
+      </div>
+    </div>
+    <p class="footnote">Escalation rate has roughly halved over 6 weeks — from 29.7% (week of May 24) to 14.3% (week of Jun 28). Weekly figures use current tier ownership as a proxy for escalation state.</p>
+  </div>
+
+  <p class="source-caption">Source: Salesforce Case + CaseHistory (Team_Responsible__c, Owner), pulled via SOQL while the Salesforce connector was live. Data current through week of Jun 28 – Jul 4, 2026 (weekly) and June 2026 (monthly/quarterly) — newer weeks pending as of this page's last edit. Page last edited Jul 20, 2026.</p>
 
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
-const periodSelect = document.getElementById('periodSelect');
-const content = document.getElementById('content');
-const subtitleText = document.getElementById('subtitleText');
+Chart.defaults.font.family = "Inter, sans-serif";
+Chart.defaults.color = '#797777';
+const tooltipStyle = { backgroundColor: '#1A1919', titleColor: '#9A9998', bodyColor: '#F5F5F4', borderColor: '#393838', borderWidth: 1 };
+const gridStyle = { color: 'rgba(255,255,255,0.06)' };
 
-async function loadData(period) {
-  content.innerHTML = '<div class="status-box">Fetching live data from Salesforce…</div>';
-  try {
-    const resp = await fetch(`/escalation-data?period=${encodeURIComponent(period)}`);
-    const data = await resp.json();
-    if (!resp.ok || data.error) {
-      throw new Error(data.error || `Request failed (${resp.status})`);
-    }
-    render(data);
-  } catch (err) {
-    content.innerHTML = `<div class="error-box">
-      <strong>Couldn't load live data.</strong><br>
-      ${err.message}<br><br>
-      Common causes: the Cloud Function isn't deployed yet, environment variables
-      (SF_CLIENT_ID / SF_CLIENT_SECRET / SF_REFRESH_TOKEN / SF_LOGIN_URL) aren't set in this
-      Launch environment, or the Salesforce refresh token has expired and needs regenerating.
-    </div>`;
-    subtitleText.textContent = 'Live data unavailable';
+// ---------- WEEKLY DATA ----------
+// Only the most recent week (jun28) has full per-agent detail.
+const weekData = {
+  jul12: { label: "Week of Jul 12 – Jul 18, 2026 (most recent)", subtitle: "Week of Jul 12 – Jul 18, 2026",
+    total: 173, t1: 158, t2: 6, t3: 9, t1Pct: 91.3, t2Pct: 3.5, t3Pct: 5.2,
+    t1Solved: 75, t1Open: 83, t1SolvedPct: 47.5, hasAgentDetail: true,
+    t1Agents: [
+      ["Nidhi Mahankali", 11, 3, 0, 14, "78.6%"],
+      ["Nesara Nagaraju", 8, 3, 0, 11, "72.7%"],
+      ["Lavanya TU", 7, 1, 1, 9, "77.8%"],
+      ["Amruth Lakshman", 5, 1, 0, 6, "83.3%"],
+      ["Karthik Haralayya", 4, 4, 0, 8, "50.0%"],
+      ["Anmol Tanwer", 4, 0, 0, 4, "100%"],
+      ["Manjunath N", 4, 0, 0, 4, "100%"],
+      ["Vishakha K", 3, 0, 0, 3, "100%"],
+      ["Sobiya Khan", 2, 0, 0, 2, "100%"],
+      ["Vinodakumara A", 2, 3, 0, 5, "40.0%"]
+    ],
+    t1AgentFootnote: "24 additional cases landed in a \"Spam Cases\" system queue (auto-filtered, not agent-solved) — excluded from this table. This week is very recent (2 days old at last refresh), so open-case counts are inflated relative to a fully-aged week — not a real performance drop.",
+    t2Agents: [
+      ["Chetan Salvi", 7, 1, 4, 2],
+      ["Abhay Kumar", 5, 1, 3, 1],
+      ["Selwyn Moses", 2, 0, 2, 0],
+      ["Priyanka Dubey", 1, 0, 0, 1]
+    ],
+    t2Total: [15, 2, 9, 4],
+    t2AgentFootnote: "T2→T3 transitions are logged under a \"JIRA Integration\" system user — the \"→ T3\" column reflects who owned the case at the moment it escalated."
+  },
+  jul05: { label: "Week of Jul 05 – Jul 11, 2026", subtitle: "Week of Jul 05 – Jul 11, 2026",
+    total: 131, t1: 112, t2: 3, t3: 16, t1Pct: 85.5, t2Pct: 2.3, t3Pct: 12.2,
+    t1Solved: 76, t1Open: 36, t1SolvedPct: 67.9, hasAgentDetail: true,
+    t1Agents: [
+      ["Nesara Nagaraju", 15, 8, 0, 23, "65.2%"],
+      ["Amruth Lakshman", 12, 0, 0, 12, "100%"],
+      ["Karthik Haralayya", 10, 2, 0, 12, "83.3%"],
+      ["Manjunath N", 6, 0, 0, 6, "100%"],
+      ["Vinodakumara A", 5, 1, 0, 6, "83.3%"],
+      ["Manoj GH", 5, 0, 1, 6, "83.3%"],
+      ["Sobiya Khan", 5, 0, 0, 5, "100%"],
+      ["Nidhi Mahankali", 5, 4, 0, 9, "55.6%"],
+      ["Anmol Tanwer", 4, 1, 0, 5, "80.0%"],
+      ["Vishakha K", 4, 1, 0, 5, "80.0%"],
+      ["Abdul Rahaman", 2, 0, 0, 2, "100%"]
+    ],
+    t1AgentFootnote: "",
+    t2Agents: [
+      ["Selwyn Moses", 5, 1, 4, 0],
+      ["Chetan Salvi", 4, 0, 4, 0],
+      ["Priyanka Dubey", 5, 1, 4, 0],
+      ["Kunal Chavan", 2, 0, 2, 0],
+      ["Abhay Kumar", 1, 0, 1, 0]
+    ],
+    t2Total: [17, 2, 15, 0],
+    t2AgentFootnote: "T2→T3 transitions are logged under a \"JIRA Integration\" system user — the \"→ T3\" column reflects who owned the case at the moment it escalated. 2 cases (of 19 T2/T3 total this week) skipped the Tier 2 placeholder via direct reassignment and aren't reflected in individual agent rows."
+  },
+  jun28: {
+    label: "Week of Jun 28 – Jul 4, 2026",
+    subtitle: "Week of Jun 28 – Jul 4, 2026",
+    total: 126, t1: 108, t2: 18, t3: 8,
+    t1Pct: 85.7, t2Pct: 14.3, t3Pct: 6.3,
+    t1Solved: 62, t1Open: 46, t1SolvedPct: 57.4,
+    hasAgentDetail: true,
+    t1Agents: [
+      ["Nesara Nagaraju", 11, 6, 0, 17, "64.7%"],
+      ["Karthik Haralayya", 9, 5, 0, 14, "64.3%"],
+      ["Manjunath N", 10, 1, 0, 11, "90.9%"],
+      ["Amruth Lakshman", 5, 1, 0, 6, "83.3%"],
+      ["Nidhi Mahankali", 4, 2, 0, 6, "66.7%"],
+      ["Vinodakumara A", 3, 2, 0, 5, "60.0%"],
+      ["Sobiya Khan", 4, 0, 0, 4, "100%"],
+      ["Manoj GH", 2, 1, 0, 3, "66.7%"],
+      ["Abdul Rahaman", 2, 0, 0, 2, "100%"],
+      ["Lavanya TU", 2, 0, 0, 2, "100%"],
+      ["Anmol Tanwer", 1, 0, 0, 1, "100%"],
+      ["Vishakha K", 1, 0, 0, 1, "100%"],
+    ],
+    t1AgentFootnote: "9 additional cases landed in a \"Spam Cases\" system queue (auto-filtered, not agent-solved) — excluded from this table.",
+    t2Agents: [
+      ["Selwyn Moses", 6, 0, 4, 2],
+      ["Priyanka Dubey", 4, 1, 1, 2],
+      ["Kunal Chavan", 4, 0, 2, 2],
+      ["Chetan Salvi *", 2, 0, 0, 2],
+      ["Abhay Kumar", 2, 1, 1, 0]
+    ],
+    t2Total: [18, 2, 8, 8],
+    t2AgentFootnote: "* Chetan Salvi's 2 cases are parked in the CDP Team queue rather than actively held by him. T2→T3 transitions are logged under a \"JIRA Integration\" system user — the \"→ T3\" column reflects who owned the case at the moment it escalated."
+  },
+  jun21: { label: "Week of Jun 21 – Jun 27, 2026", subtitle: "Week of Jun 21 – Jun 27, 2026",
+    total: 108, t1: 86, t2: 4, t3: 18, t1Pct: 79.6, t2Pct: 3.7, t3Pct: 16.7,
+    t1Solved: 64, t1Open: 22, t1SolvedPct: 74.4, hasAgentDetail: true,
+    t1Agents: [
+      ["Karthik Haralayya", 12, 8, 0, 20, "60.0%"],
+      ["Sobiya Khan", 9, 5, 4, 18, "50.0%"],
+      ["Nesara Nagaraju", 10, 3, 0, 13, "76.9%"],
+      ["Manjunath N", 7, 0, 1, 8, "87.5%"],
+      ["Nidhi Mahankali", 5, 3, 0, 8, "62.5%"],
+      ["Amruth Lakshman", 4, 3, 0, 7, "57.1%"],
+      ["Vinodakumara A", 3, 1, 0, 4, "75.0%"],
+      ["Anmol Tanwer", 2, 0, 0, 2, "100%"],
+      ["Vishakha K", 1, 0, 1, 2, "50.0%"],
+      ["Abdul Rahaman", 1, 0, 1, 2, "50.0%"],
+      ["Lavanya TU", 2, 0, 0, 2, "100%"],
+      ["Manoj GH", 1, 0, 1, 2, "50.0%"],
+    ],
+    t1AgentFootnote: "",
+    t2Agents: [
+      ["Selwyn Moses", 8, 0, 8, 0],
+      ["Kunal Chavan", 8, 0, 7, 1],
+      ["Chetan Salvi", 4, 1, 2, 1],
+      ["Priyanka Dubey", 2, 2, 0, 0],
+      ["Abhay Kumar", 1, 0, 1, 0]
+    ],
+    t2Total: [23, 3, 18, 2],
+    t2AgentFootnote: "T2\u2192T3 transitions are logged under a \"JIRA Integration\" system user \u2014 the \"\u2192 T3\" column reflects who owned the case at the moment it escalated."
+  },
+  jun14: { label: "Week of Jun 14 – Jun 20, 2026", subtitle: "Week of Jun 14 – Jun 20, 2026",
+    total: 113, t1: 95, t2: 5, t3: 13, t1Pct: 84.1, t2Pct: 4.4, t3Pct: 11.5,
+    t1Solved: 87, t1Open: 8, t1SolvedPct: 91.6, hasAgentDetail: true,
+    t1Agents: [
+      ["Karthik Haralayya", 15, 1, 0, 16, "93.8%"],
+      ["Nesara Nagaraju", 10, 6, 0, 16, "62.5%"],
+      ["Amruth Lakshman", 10, 3, 0, 13, "76.9%"],
+      ["Nidhi Mahankali", 10, 3, 0, 13, "76.9%"],
+      ["Sobiya Khan", 9, 2, 2, 13, "69.2%"],
+      ["Manjunath N", 9, 1, 1, 11, "81.8%"],
+      ["Lavanya TU", 5, 1, 2, 8, "62.5%"],
+      ["Manoj GH", 5, 0, 1, 6, "83.3%"],
+      ["Abdul Rahaman", 5, 0, 0, 5, "100%"],
+      ["Vinodakumara A", 4, 0, 0, 4, "100%"],
+    ],
+    t1AgentFootnote: "",
+    t2Agents: [
+      ["Kunal Chavan", 8, 0, 6, 2],
+      ["Chetan Salvi", 4, 2, 2, 0],
+      ["Selwyn Moses", 3, 0, 3, 0],
+      ["Priyanka Dubey", 2, 0, 2, 0],
+      ["Abhay Kumar", 1, 0, 0, 1]
+    ],
+    t2Total: [18, 2, 13, 3],
+    t2AgentFootnote: "T2\u2192T3 transitions are logged under a \"JIRA Integration\" system user \u2014 the \"\u2192 T3\" column reflects who owned the case at the moment it escalated."
+  },
+  jun07: { label: "Week of Jun 07 – Jun 13, 2026", subtitle: "Week of Jun 07 – Jun 13, 2026",
+    total: 121, t1: 96, t2: 6, t3: 19, t1Pct: 79.3, t2Pct: 5.0, t3Pct: 15.7,
+    t1Solved: 85, t1Open: 11, t1SolvedPct: 88.5, hasAgentDetail: true,
+    t1Agents: [
+      ["Karthik Haralayya", 15, 6, 0, 21, "71.4%"],
+      ["Nidhi Mahankali", 15, 2, 1, 18, "83.3%"],
+      ["Nesara Nagaraju", 14, 2, 0, 16, "87.5%"],
+      ["Vinodakumara A", 11, 4, 0, 15, "73.3%"],
+      ["Anmol Tanwer", 6, 2, 1, 9, "66.7%"],
+      ["Amruth Lakshman", 4, 5, 0, 9, "44.4%"],
+      ["Sobiya Khan", 6, 1, 0, 7, "85.7%"],
+      ["Manjunath N", 4, 0, 0, 4, "100%"],
+      ["Manoj GH", 4, 0, 0, 4, "100%"],
+      ["Vishakha K", 2, 1, 0, 3, "66.7%"],
+      ["Lavanya TU", 2, 1, 0, 3, "66.7%"],
+    ],
+    t1AgentFootnote: "",
+    t2Agents: [
+      ["Kunal Chavan", 8, 0, 6, 2],
+      ["Abhay Kumar", 5, 1, 4, 0],
+      ["Chetan Salvi", 5, 1, 3, 1],
+      ["Priyanka Dubey", 4, 1, 3, 0],
+      ["Selwyn Moses", 3, 0, 3, 0]
+    ],
+    t2Total: [25, 3, 19, 3],
+    t2AgentFootnote: "T2\u2192T3 transitions are logged under a \"JIRA Integration\" system user \u2014 the \"\u2192 T3\" column reflects who owned the case at the moment it escalated."
+  },
+  may31: { label: "Week of May 31 – Jun 06, 2026", subtitle: "Week of May 31 – Jun 06, 2026",
+    total: 108, t1: 84, t2: 10, t3: 14, t1Pct: 77.8, t2Pct: 9.3, t3Pct: 13.0,
+    t1Solved: 81, t1Open: 3, t1SolvedPct: 96.4, hasAgentDetail: true,
+    t1Agents: [
+      ["Nesara Nagaraju", 12, 2, 0, 14, "85.7%"],
+      ["Karthik Haralayya", 12, 2, 0, 14, "85.7%"],
+      ["Amruth Lakshman", 11, 4, 0, 15, "73.3%"],
+      ["Anmol Tanwer", 7, 3, 1, 11, "63.6%"],
+      ["Vishakha K", 7, 2, 0, 9, "77.8%"],
+      ["Manoj GH", 7, 0, 0, 7, "100%"],
+      ["Sobiya Khan", 5, 0, 2, 7, "71.4%"],
+      ["Vinodakumara A", 5, 3, 0, 8, "62.5%"],
+      ["Lavanya TU", 4, 3, 0, 7, "57.1%"],
+      ["Manjunath N", 3, 2, 0, 5, "60.0%"],
+      ["Nidhi Mahankali", 3, 2, 0, 5, "60.0%"],
+      ["Abdul Rahaman", 1, 0, 0, 1, "100%"],
+    ],
+    t1AgentFootnote: "",
+    t2Agents: [
+      ["Chetan Salvi", 9, 4, 4, 1],
+      ["Kunal Chavan", 6, 1, 5, 0],
+      ["Priyanka Dubey", 4, 3, 1, 0],
+      ["Selwyn Moses", 2, 1, 1, 0],
+      ["Abhay Kumar", 2, 0, 2, 0]
+    ],
+    t2Total: [23, 9, 13, 1],
+    t2AgentFootnote: "T2\u2192T3 transitions are logged under a \"JIRA Integration\" system user \u2014 the \"\u2192 T3\" column reflects who owned the case at the moment it escalated."
+  },
+  may24: { label: "Week of May 24 – May 30, 2026 (oldest)", subtitle: "Week of May 24 – May 30, 2026",
+    total: 128, t1: 90, t2: 10, t3: 28, t1Pct: 70.3, t2Pct: 7.8, t3Pct: 21.9,
+    t1Solved: 89, t1Open: 1, t1SolvedPct: 98.9, hasAgentDetail: true,
+    t1Agents: [
+      ["Amruth Lakshman", 14, 5, 0, 19, "73.7%"],
+      ["Karthik Haralayya", 12, 6, 0, 18, "66.7%"],
+      ["Nesara Nagaraju", 10, 6, 0, 16, "62.5%"],
+      ["Vishakha K", 9, 3, 0, 12, "75.0%"],
+      ["Vinodakumara A", 9, 1, 0, 10, "90.0%"],
+      ["Abdul Rahaman", 8, 1, 2, 11, "72.7%"],
+      ["Manjunath N", 6, 2, 0, 8, "75.0%"],
+      ["Anmol Tanwer", 5, 4, 0, 9, "55.6%"],
+      ["Manoj GH", 4, 2, 1, 7, "57.1%"],
+      ["Nidhi Mahankali", 3, 2, 1, 6, "50.0%"],
+      ["Lavanya TU", 3, 2, 0, 5, "60.0%"],
+      ["Sobiya Khan", 2, 1, 0, 3, "66.7%"],
+    ],
+    t1AgentFootnote: "",
+    t2Agents: [
+      ["Chetan Salvi", 11, 2, 8, 1],
+      ["Abhay Kumar", 8, 3, 5, 0],
+      ["Priyanka Dubey", 7, 2, 5, 0],
+      ["Selwyn Moses", 5, 1, 4, 0],
+      ["Kunal Chavan", 4, 1, 3, 0]
+    ],
+    t2Total: [35, 9, 25, 1],
+    t2AgentFootnote: "T2\u2192T3 transitions are logged under a \"JIRA Integration\" system user \u2014 the \"\u2192 T3\" column reflects who owned the case at the moment it escalated."
+  }
+};
+const weekOrder = ['jul12','jul05','jun28','jun21','jun14','jun07','may31','may24'];
+
+// ---------- MONTHLY DATA (exact, from Salesforce aggregate queries) ----------
+const monthData = {
+  jul26: { label: "July 2026 (partial, in progress)", subtitle: "July 2026 (partial — month in progress)",
+    total: 140, t1: 124, t2: 8, t3: 8, t1Pct: 88.6, t2Pct: 5.7, t3Pct: 5.7,
+    t1Solved: 59, t1Open: 65, t1SolvedPct: 47.6, hasAgentDetail: false, partial: true },
+  jun26: { label: "June 2026", subtitle: "June 2026",
+    total: 497, t1: 404, t2: 28, t3: 65, t1Pct: 81.3, t2Pct: 5.6, t3Pct: 13.1,
+    t1Solved: 348, t1Open: 56, t1SolvedPct: 86.1, hasAgentDetail: true,
+    t1Agents: [
+      ["Karthik Haralayya", 61, 13, 0, 74, "82.4%"],
+      ["Nesara Nagaraju", 50, 11, 0, 61, "82.0%"],
+      ["Sobiya Khan", 31, 7, 9, 47, "66.0%"],
+      ["Nidhi Mahankali", 36, 10, 1, 47, "76.6%"],
+      ["Amruth Lakshman", 29, 14, 0, 43, "67.4%"],
+      ["Manjunath N", 31, 3, 2, 36, "86.1%"],
+      ["Vinodakumara A", 25, 8, 0, 33, "75.8%"],
+      ["Anmol Tanwer", 16, 5, 2, 23, "69.6%"],
+      ["Manoj GH", 18, 0, 2, 20, "90.0%"],
+      ["Lavanya TU", 13, 5, 2, 20, "65.0%"],
+      ["Vishakha K", 11, 4, 1, 16, "68.8%"],
+      ["Abdul Rahaman", 8, 1, 1, 10, "80.0%"],
+    ],
+    t1AgentFootnote: "3 additional cases went through a \"CDP Team\" system queue (auto-routed, not agent-solved) \u2014 excluded from this table.",
+    t2Agents: [
+      ["Kunal Chavan", 32, 1, 25, 6],
+      ["Chetan Salvi", 23, 9, 11, 3],
+      ["Selwyn Moses", 16, 1, 15, 0],
+      ["Priyanka Dubey", 13, 6, 6, 1],
+      ["Abhay Kumar", 9, 1, 7, 1]
+    ],
+    t2Total: [93, 18, 64, 11],
+    t2AgentFootnote: "T2\u2192T3 transitions are logged under a \"JIRA Integration\" system user \u2014 the \"\u2192 T3\" column reflects who owned the case at the moment it escalated. A handful of cases bounced between T2 and T3 multiple times during the month; each is counted once, at its most recent escalation."
+  },
+  may26: { label: "May 2026", subtitle: "May 2026",
+    total: 516, t1: 367, t2: 39, t3: 110, t1Pct: 71.1, t2Pct: 7.6, t3Pct: 21.3,
+    t1Solved: 362, t1Open: 5, t1SolvedPct: 98.6, hasAgentDetail: true,
+    t1Agents: [
+      ["Karthik Haralayya", 39, 23, 0, 62, "62.9%"],
+      ["Vishakha K", 43, 16, 1, 60, "71.7%"],
+      ["Nidhi Mahankali", 38, 19, 2, 59, "64.4%"],
+      ["Nesara Nagaraju", 31, 16, 0, 47, "66.0%"],
+      ["Manoj GH", 31, 13, 1, 45, "68.9%"],
+      ["Lavanya TU", 32, 11, 0, 43, "74.4%"],
+      ["Amruth Lakshman", 29, 12, 0, 41, "70.7%"],
+      ["Vinodakumara A", 27, 8, 0, 35, "77.1%"],
+      ["Anmol Tanwer", 19, 12, 3, 34, "55.9%"],
+      ["Manjunath N", 23, 9, 1, 33, "69.7%"],
+      ["Abdul Rahaman", 20, 4, 5, 29, "69.0%"],
+      ["Sobiya Khan", 12, 2, 5, 19, "63.2%"],
+    ],
+    t1AgentFootnote: "",
+    t2Agents: [
+      ["Chetan Salvi", 37, 8, 28, 1],
+      ["Kunal Chavan", 29, 3, 25, 1],
+      ["Priyanka Dubey", 27, 9, 18, 0],
+      ["Selwyn Moses", 26, 6, 18, 2],
+      ["Abhay Kumar", 25, 9, 16, 0]
+    ],
+    t2Total: [145, 35, 106, 4],
+    t2AgentFootnote: "T2\u2192T3 transitions are logged under a \"JIRA Integration\" system user \u2014 the \"\u2192 T3\" column reflects who owned the case at the moment it escalated."
+  },
+  apr26: { label: "April 2026", subtitle: "April 2026",
+    total: 478, t1: 325, t2: 41, t3: 112, t1Pct: 68.0, t2Pct: 8.6, t3Pct: 23.4,
+    t1Solved: 320, t1Open: 5, t1SolvedPct: 98.5, hasAgentDetail: true,
+    t1Agents: [
+      ["Nesara Nagaraju", 41, 14, 0, 55, "74.5%"],
+      ["Karthik Haralayya", 36, 16, 0, 52, "69.2%"],
+      ["Lavanya TU", 35, 14, 0, 49, "71.4%"],
+      ["Manoj GH", 28, 19, 0, 47, "59.6%"],
+      ["Manjunath N", 28, 15, 1, 44, "63.6%"],
+      ["Nidhi Mahankali", 27, 14, 2, 43, "62.8%"],
+      ["Abdul Rahaman", 27, 9, 4, 40, "67.5%"],
+      ["Amruth Lakshman", 21, 14, 1, 36, "58.3%"],
+      ["Anmol Tanwer", 24, 9, 2, 35, "68.6%"],
+      ["Vishakha K", 21, 11, 1, 33, "63.6%"],
+      ["Vinodakumara A", 14, 12, 0, 26, "53.8%"],
+      ["Sobiya Khan", 7, 5, 0, 12, "58.3%"],
+    ],
+    t1AgentFootnote: "",
+    t2Agents: [
+      ["Priyanka Dubey", 44, 12, 32, 0],
+      ["Chetan Salvi", 33, 18, 15, 0],
+      ["Kunal Chavan", 28, 2, 26, 0],
+      ["Selwyn Moses", 28, 7, 21, 0],
+      ["Abhay Kumar", 18, 2, 16, 0]
+    ],
+    t2Total: [151, 41, 110, 0],
+    t2AgentFootnote: "T2\u2192T3 transitions are logged under a \"JIRA Integration\" system user \u2014 the \"\u2192 T3\" column reflects who owned the case at the moment it escalated."
+  },
+  mar26: { label: "March 2026", subtitle: "March 2026",
+    total: 511, t1: 341, t2: 32, t3: 138, t1Pct: 66.7, t2Pct: 6.3, t3Pct: 27.0,
+    t1Solved: 333, t1Open: 8, t1SolvedPct: 97.7, hasAgentDetail: true,
+    t1Agents: [
+      ["Manjunath N", 54, 21, 0, 75, "72.0%"],
+      ["Nesara Nagaraju", 38, 22, 0, 60, "63.3%"],
+      ["Abdul Rahaman", 45, 12, 1, 58, "77.6%"],
+      ["Lavanya TU", 37, 17, 0, 54, "68.5%"],
+      ["Amruth Lakshman", 30, 19, 1, 50, "60.0%"],
+      ["Manoj GH", 28, 21, 0, 49, "57.1%"],
+      ["Vinodakumara A", 25, 12, 0, 37, "67.6%"],
+      ["Vishakha K", 22, 13, 1, 36, "61.1%"],
+      ["Karthik Haralayya", 17, 15, 1, 33, "51.5%"],
+      ["Anmol Tanwer", 16, 9, 0, 25, "64.0%"],
+      ["Nidhi Mahankali", 17, 6, 0, 23, "73.9%"],
+    ],
+    t1AgentFootnote: "",
+    t2Agents: [
+      ["Kunal Chavan", 46, 6, 38, 2],
+      ["Abhay Kumar", 41, 7, 34, 0],
+      ["Selwyn Moses", 29, 3, 25, 1],
+      ["Priyanka Dubey", 29, 9, 20, 0],
+      ["Chetan Salvi", 22, 4, 18, 0]
+    ],
+    t2Total: [167, 29, 135, 3],
+    t2AgentFootnote: "T2\u2192T3 transitions are logged under a \"JIRA Integration\" system user \u2014 the \"\u2192 T3\" column reflects who owned the case at the moment it escalated."
+  },
+  feb26: { label: "February 2026", subtitle: "February 2026",
+    total: 344, t1: 194, t2: 32, t3: 118, t1Pct: 56.4, t2Pct: 9.3, t3Pct: 34.3,
+    t1Solved: 190, t1Open: 4, t1SolvedPct: 97.9, hasAgentDetail: true,
+    t1Agents: [
+      ["Anmol Tanwer", 43, 18, 0, 61, "70.5%"],
+      ["Vishakha K", 45, 15, 0, 60, "75.0%"],
+      ["Manoj GH", 35, 25, 0, 60, "58.3%"],
+      ["Abdul Rahaman", 37, 20, 1, 58, "63.8%"],
+      ["Lavanya TU", 31, 17, 0, 48, "64.6%"],
+      ["Vinodakumara A", 24, 23, 0, 47, "51.1%"],
+      ["Nesara Nagaraju", 27, 16, 0, 43, "62.8%"],
+      ["Karthik Haralayya", 27, 16, 0, 43, "62.8%"],
+      ["Nidhi Mahankali", 26, 10, 0, 36, "72.2%"],
+      ["Manjunath N", 25, 6, 0, 31, "80.6%"],
+      ["Amruth Lakshman", 20, 10, 0, 30, "66.7%"],
+    ],
+    t1AgentFootnote: "",
+    t2Agents: [
+      ["Abhay Kumar", 50, 9, 41, 0],
+      ["Selwyn Moses", 44, 8, 35, 1],
+      ["Chetan Salvi", 33, 12, 21, 0],
+      ["Kunal Chavan", 31, 3, 28, 0],
+      ["Priyanka Dubey", 20, 7, 13, 0]
+    ],
+    t2Total: [178, 39, 138, 1],
+    t2AgentFootnote: "T2\u2192T3 transitions are logged under a \"JIRA Integration\" system user \u2014 the \"\u2192 T3\" column reflects who owned the case at the moment it escalated."
+  }
+};
+
+// ---------- QUARTERLY DATA ----------
+// Fiscal year: Feb - Jan. Q1 = Feb-Apr, Q2 = May-Jul, Q3 = Aug-Oct, Q4 = Nov-Jan.
+const quarterData = {
+  q2fy26: { label: "Q2 FY26 — May-Jul 2026 (in progress)", subtitle: "Q2 FY26: May – Jul 2026 (in progress)",
+    total: 1153, t1: 895, t2: 75, t3: 183, t1Pct: 77.6, t2Pct: 6.5, t3Pct: 15.9,
+    t1Solved: 769, t1Open: 126, t1SolvedPct: 85.9, hasAgentDetail: true, partial: true,
+    t1Agents: [
+      ["Karthik Haralayya", 100, 36, 0, 136, "73.5%"],
+      ["Nesara Nagaraju", 81, 27, 0, 108, "75.0%"],
+      ["Nidhi Mahankali", 74, 29, 3, 106, "69.8%"],
+      ["Amruth Lakshman", 58, 26, 0, 84, "69.0%"],
+      ["Vishakha K", 54, 20, 2, 76, "71.1%"],
+      ["Manjunath N", 54, 12, 3, 69, "78.3%"],
+      ["Vinodakumara A", 52, 16, 0, 68, "76.5%"],
+      ["Sobiya Khan", 43, 9, 14, 66, "65.2%"],
+      ["Manoj GH", 49, 13, 3, 65, "75.4%"],
+      ["Lavanya TU", 45, 16, 2, 63, "71.4%"],
+      ["Anmol Tanwer", 35, 17, 5, 57, "61.4%"],
+      ["Abdul Rahaman", 28, 5, 6, 39, "71.8%"],
+    ],
+    t1AgentFootnote: "Agent detail reflects May + June only — July is still in progress and its per-agent breakdown hasn't been pulled yet, though its totals are included in the KPI cards above.",
+    t2Agents: [
+      ["Kunal Chavan", 61, 4, 50, 7],
+      ["Chetan Salvi", 60, 17, 39, 4],
+      ["Selwyn Moses", 42, 7, 33, 2],
+      ["Priyanka Dubey", 40, 15, 24, 1],
+      ["Abhay Kumar", 34, 10, 23, 1]
+    ],
+    t2Total: [237, 53, 169, 15],
+    t2AgentFootnote: "Reflects May + June only (July pending). T2→T3 transitions are logged under a \"JIRA Integration\" system user — the \"→ T3\" column reflects who owned the case at the moment it escalated."
+  },
+  q1fy26: { label: "Q1 FY26 — Feb-Apr 2026", subtitle: "Q1 FY26: Feb – Apr 2026",
+    total: 1512, t1: 1010, t2: 113, t3: 389, t1Pct: 66.8, t2Pct: 7.5, t3Pct: 25.7,
+    t1Solved: 994, t1Open: 16, t1SolvedPct: 98.4, hasAgentDetail: true,
+    t1Agents: [
+      ["Nesara Nagaraju", 106, 52, 0, 158, "67.1%"],
+      ["Manoj GH", 91, 65, 0, 156, "58.3%"],
+      ["Abdul Rahaman", 109, 41, 6, 156, "69.9%"],
+      ["Lavanya TU", 103, 48, 0, 151, "68.2%"],
+      ["Manjunath N", 107, 42, 1, 150, "71.3%"],
+      ["Vishakha K", 88, 39, 2, 129, "68.2%"],
+      ["Karthik Haralayya", 80, 47, 1, 128, "62.5%"],
+      ["Anmol Tanwer", 83, 36, 2, 121, "68.6%"],
+      ["Amruth Lakshman", 71, 43, 2, 116, "61.2%"],
+      ["Vinodakumara A", 63, 47, 0, 110, "57.3%"],
+      ["Nidhi Mahankali", 70, 30, 2, 102, "68.6%"],
+      ["Sobiya Khan", 7, 5, 0, 12, "58.3%"],
+    ],
+    t1AgentFootnote: "Full quarter (Feb, Mar, Apr all complete).",
+    t2Agents: [
+      ["Abhay Kumar", 109, 18, 91, 0],
+      ["Kunal Chavan", 105, 11, 92, 2],
+      ["Selwyn Moses", 101, 18, 81, 2],
+      ["Priyanka Dubey", 93, 28, 65, 0],
+      ["Chetan Salvi", 88, 34, 54, 0]
+    ],
+    t2Total: [496, 109, 383, 4],
+    t2AgentFootnote: "Full quarter (Feb, Mar, Apr all complete). T2→T3 transitions are logged under a \"JIRA Integration\" system user — the \"→ T3\" column reflects who owned the case at the moment it escalated."
+  }
+};
+const monthOrder = ['jul26','jun26','may26','apr26','mar26','feb26'];
+const quarterOrder = ['q2fy26','q1fy26'];
+let currentView = 'week'; // 'week', 'month', or 'quarter'
+
+// ---------- populate dropdowns ----------
+const sel = document.getElementById('weekSelect');
+weekOrder.forEach(key => {
+  const opt = document.createElement('option');
+  opt.value = key;
+  opt.textContent = weekData[key].label;
+  sel.appendChild(opt);
+});
+
+const monthSel = document.getElementById('monthSelect');
+monthOrder.forEach(key => {
+  const opt = document.createElement('option');
+  opt.value = key;
+  opt.textContent = monthData[key].label;
+  monthSel.appendChild(opt);
+});
+
+const quarterSel = document.getElementById('quarterSelect');
+quarterOrder.forEach(key => {
+  const opt = document.createElement('option');
+  opt.value = key;
+  opt.textContent = quarterData[key].label;
+  quarterSel.appendChild(opt);
+});
+
+// ---------- toggle wiring ----------
+const viewWeekBtn = document.getElementById('viewWeekBtn');
+const viewMonthBtn = document.getElementById('viewMonthBtn');
+const viewQuarterBtn = document.getElementById('viewQuarterBtn');
+
+function setView(view) {
+  currentView = view;
+  viewWeekBtn.classList.toggle('active', view === 'week');
+  viewMonthBtn.classList.toggle('active', view === 'month');
+  viewQuarterBtn.classList.toggle('active', view === 'quarter');
+  sel.style.display = view === 'week' ? 'block' : 'none';
+  monthSel.style.display = view === 'month' ? 'block' : 'none';
+  quarterSel.style.display = view === 'quarter' ? 'block' : 'none';
+  if (view === 'week') {
+    document.getElementById('distDesc').textContent = 'Where tickets ended up across the T1 → T2 → T3 chain';
+    renderWeek(sel.value);
+  } else if (view === 'month') {
+    monthSel.value = monthOrder[0];
+    renderMonth(monthSel.value);
+  } else {
+    quarterSel.value = quarterOrder[0];
+    renderQuarter(quarterSel.value);
   }
 }
 
-function render(data) {
-  const { kpi, t1Agents, generatedAt } = data;
-  const generatedTime = new Date(generatedAt).toLocaleString();
-  subtitleText.textContent = `Live as of ${generatedTime}`;
+viewWeekBtn.addEventListener('click', () => setView('week'));
+viewMonthBtn.addEventListener('click', () => setView('month'));
+viewQuarterBtn.addEventListener('click', () => setView('quarter'));
+monthSel.addEventListener('change', (e) => renderMonth(e.target.value));
+quarterSel.addEventListener('change', (e) => renderQuarter(e.target.value));
 
-  let html = `
-    <div class="kpi-row">
-      <div class="kpi-card">
-        <p class="kpi-label">Total tickets</p>
-        <p class="kpi-value">${kpi.total}</p>
-      </div>
-      <div class="kpi-card">
-        <p class="kpi-label">Resolved by T1</p>
-        <p class="kpi-value">${kpi.t1} <span class="kpi-pct">${kpi.t1Pct}%</span></p>
-      </div>
-      <div class="kpi-card">
-        <p class="kpi-label">Escalated to T2</p>
-        <p class="kpi-value">${kpi.t2} <span class="kpi-pct">${kpi.t2Pct}%</span></p>
-      </div>
-      <div class="kpi-card">
-        <p class="kpi-label">Escalated to T3</p>
-        <p class="kpi-value">${kpi.t3} <span class="kpi-pct">${kpi.t3Pct}%</span></p>
-      </div>
+function renderQuarter(key) {
+  const d = quarterData[key];
+  document.getElementById('subtitleText').textContent = d.subtitle;
+  document.getElementById('distDesc').textContent = `Where ${d.total} tickets that quarter ended up across the T1 → T2 → T3 chain` + (d.partial ? ' — quarter still in progress, numbers will keep moving' : '');
+
+  document.getElementById('kpiRow').innerHTML = `
+    <div class="kpi-card">
+      <p class="kpi-label">Total tickets</p>
+      <p class="kpi-value">${d.total}</p>
+      <p class="kpi-sub">Created that quarter</p>
     </div>
-
-    <div class="card">
-      <p class="section-title">T1 agents: solved vs escalated</p>
-      <p class="section-desc">T1 solve rate: ${kpi.t1Solved} of ${kpi.t1} tickets Solved/Closed (${kpi.t1SolvedPct}%). JIRA-Key-corrected — cases with a linked JIRA ticket count as escalated to T3, not solved.</p>
-      <table>
-        <tr><th>Agent</th><th class="num">Solved</th><th class="num">Esc. T2</th><th class="num">Esc. T3 (direct)</th><th class="num">Total</th><th class="num">Solve %</th></tr>
-        ${t1Agents.map(a => `<tr>
-          <td>${a.name}</td><td class="num">${a.solved}</td><td class="num">${a.esc2}</td>
-          <td class="num">${a.esc3}</td><td class="num">${a.total}</td><td class="num">${a.solvePct}%</td>
-        </tr>`).join('')}
-      </table>
+    <div class="kpi-card">
+      <p class="kpi-label">Resolved by T1</p>
+      <p class="kpi-value">${d.t1} <span class="kpi-pct">${d.t1Pct}%</span></p>
+      <p class="kpi-sub">Never left T1</p>
+    </div>
+    <div class="kpi-card">
+      <p class="kpi-label">Escalated to T2</p>
+      <p class="kpi-value">${d.t2} <span class="kpi-pct">${d.t2Pct}%</span></p>
+      <p class="kpi-sub">Of total volume</p>
+    </div>
+    <div class="kpi-card">
+      <p class="kpi-label">Escalated to T3</p>
+      <p class="kpi-value">${d.t3} <span class="kpi-pct">${d.t3Pct}%</span></p>
+      <p class="kpi-sub">Of total volume</p>
     </div>
   `;
-  content.innerHTML = html;
+
+  flowChart.data.labels = [`Total (100%)`, `T1 (${d.t1Pct}%)`, `To T2 (${d.t2Pct}%)`, `To T3 (${d.t3Pct}%)`];
+  flowChart.data.datasets[0].data = [d.total, d.t1, d.t2, d.t3];
+  flowChart.update();
+
+  solveChart.data.datasets[0].data = [d.t1Solved, d.t1Open];
+  solveChart.update();
+  document.getElementById('solveFootnote').textContent =
+    `T1 solve rate: ${d.t1Solved} of ${d.t1} tickets T1 owned end-to-end are Solved/Closed (${d.t1SolvedPct}%). The remaining ${d.t1Open} are still New/Open/Pending/On Hold.` +
+    (d.partial ? ' Note: this quarter is still in progress, so the open count is inflated relative to a completed quarter — not a real performance drop.' : '');
+
+  document.getElementById('t1AgentSection').style.display = 'none';
+  document.getElementById('t1AgentPlaceholder').style.display = 'block';
+  document.getElementById('t1AgentPlaceholder').textContent = 'Per-agent breakdown is only available in Week view for the most recent week. Ask for a quarterly agent-level pull if you need this rolled up by quarter.';
+  document.getElementById('t2AgentSection').style.display = 'none';
+  document.getElementById('t2AgentPlaceholder').style.display = 'block';
+  document.getElementById('t2AgentPlaceholder').textContent = 'Per-agent breakdown is only available in Week view for the most recent week. Ask for a quarterly agent-level pull if you need this rolled up by quarter.';
+
+  if (d.hasAgentDetail) {
+    document.getElementById('t1AgentSection').style.display = 'grid';
+    document.getElementById('t1AgentPlaceholder').style.display = 'none';
+    document.getElementById('t2AgentSection').style.display = 'grid';
+    document.getElementById('t2AgentPlaceholder').style.display = 'none';
+
+    const t1Table = document.getElementById('t1AgentTable');
+    t1Table.innerHTML = '<tr><th>Agent</th><th class="num">Solved</th><th class="num">Esc. T2</th><th class="num">Esc. T3 (direct)</th><th class="num">Total</th><th class="num">Solve %</th></tr>';
+    d.t1Agents.forEach(row => {
+      t1Table.innerHTML += `<tr><td>${row[0]}</td><td class="num">${row[1]}</td><td class="num">${row[2]}</td><td class="num">${row[3]}</td><td class="num">${row[4]}</td><td class="num">${row[5]}</td></tr>`;
+    });
+    document.getElementById('t1AgentFootnote').textContent = d.t1AgentFootnote || '';
+
+    const labels = d.t1Agents.map(r => r[0]);
+    const solved = d.t1Agents.map(r => r[1]);
+    const escT2 = d.t1Agents.map(r => r[2]);
+    const escT3 = d.t1Agents.map(r => r[3]);
+    t1AgentChart.data.labels = labels;
+    t1AgentChart.data.datasets[0].data = solved;
+    t1AgentChart.data.datasets[1].data = escT2;
+    t1AgentChart.data.datasets[2].data = escT3;
+    t1AgentChart.update();
+
+    const t2Table = document.getElementById('t2AgentTable');
+    t2Table.innerHTML = '<tr><th>Agent</th><th class="num">Received</th><th class="num">Solved</th><th class="num">→ T3</th><th class="num">Open</th></tr>';
+    d.t2Agents.forEach(row => {
+      t2Table.innerHTML += `<tr><td>${row[0]}</td><td class="num">${row[1]}</td><td class="num">${row[2]}</td><td class="num">${row[3]}</td><td class="num">${row[4]}</td></tr>`;
+    });
+    t2Table.innerHTML += `<tr class="total-row"><td>Total</td><td class="num">${d.t2Total[0]}</td><td class="num">${d.t2Total[1]}</td><td class="num">${d.t2Total[2]}</td><td class="num">${d.t2Total[3]}</td></tr>`;
+    document.getElementById('t2AgentFootnote').textContent = d.t2AgentFootnote || '';
+
+    const t2Labels = d.t2Agents.map(r => r[0]);
+    const t2Solved = d.t2Agents.map(r => r[2]);
+    const t2Esc = d.t2Agents.map(r => r[3]);
+    const t2Open = d.t2Agents.map(r => r[4]);
+    t2AgentChart.data.labels = t2Labels;
+    t2AgentChart.data.datasets[0].data = t2Solved;
+    t2AgentChart.data.datasets[1].data = t2Esc;
+    t2AgentChart.data.datasets[2].data = t2Open;
+    t2AgentChart.update();
+  }
 }
 
-periodSelect.addEventListener('change', (e) => loadData(e.target.value));
-loadData('last_week');
+function renderMonth(key) {
+  const d = monthData[key];
+  document.getElementById('subtitleText').textContent = d.subtitle;
+  document.getElementById('distDesc').textContent = `Where ${d.total} tickets that month ended up across the T1 → T2 → T3 chain` + (d.partial ? ' — month still in progress, numbers will keep moving' : '');
+
+  document.getElementById('kpiRow').innerHTML = `
+    <div class="kpi-card">
+      <p class="kpi-label">Total tickets</p>
+      <p class="kpi-value">${d.total}</p>
+      <p class="kpi-sub">Created that month</p>
+    </div>
+    <div class="kpi-card">
+      <p class="kpi-label">Resolved by T1</p>
+      <p class="kpi-value">${d.t1} <span class="kpi-pct">${d.t1Pct}%</span></p>
+      <p class="kpi-sub">Never left T1</p>
+    </div>
+    <div class="kpi-card">
+      <p class="kpi-label">Escalated to T2</p>
+      <p class="kpi-value">${d.t2} <span class="kpi-pct">${d.t2Pct}%</span></p>
+      <p class="kpi-sub">Of total volume</p>
+    </div>
+    <div class="kpi-card">
+      <p class="kpi-label">Escalated to T3</p>
+      <p class="kpi-value">${d.t3} <span class="kpi-pct">${d.t3Pct}%</span></p>
+      <p class="kpi-sub">Of total volume</p>
+    </div>
+  `;
+
+  flowChart.data.labels = [`Total (100%)`, `T1 (${d.t1Pct}%)`, `To T2 (${d.t2Pct}%)`, `To T3 (${d.t3Pct}%)`];
+  flowChart.data.datasets[0].data = [d.total, d.t1, d.t2, d.t3];
+  flowChart.update();
+
+  solveChart.data.datasets[0].data = [d.t1Solved, d.t1Open];
+  solveChart.update();
+  document.getElementById('solveFootnote').textContent =
+    `T1 solve rate: ${d.t1Solved} of ${d.t1} tickets T1 owned end-to-end are Solved/Closed (${d.t1SolvedPct}%). The remaining ${d.t1Open} are still New/Open/Pending/On Hold.` +
+    (d.partial ? ' Note: this month is still in progress, so the open count is inflated relative to a completed month — not a real performance drop.' : '');
+
+  document.getElementById('t1AgentSection').style.display = 'none';
+  document.getElementById('t1AgentPlaceholder').style.display = 'block';
+  document.getElementById('t1AgentPlaceholder').textContent = 'Per-agent breakdown is only available in Week view for the most recent week. Ask for a monthly agent-level pull if you need this rolled up by month.';
+  document.getElementById('t2AgentSection').style.display = 'none';
+  document.getElementById('t2AgentPlaceholder').style.display = 'block';
+  document.getElementById('t2AgentPlaceholder').textContent = 'Per-agent breakdown is only available in Week view for the most recent week. Ask for a monthly agent-level pull if you need this rolled up by month.';
+
+  if (d.hasAgentDetail) {
+    document.getElementById('t1AgentSection').style.display = 'grid';
+    document.getElementById('t1AgentPlaceholder').style.display = 'none';
+    document.getElementById('t2AgentSection').style.display = 'grid';
+    document.getElementById('t2AgentPlaceholder').style.display = 'none';
+
+    const t1Table = document.getElementById('t1AgentTable');
+    t1Table.innerHTML = '<tr><th>Agent</th><th class="num">Solved</th><th class="num">Esc. T2</th><th class="num">Esc. T3 (direct)</th><th class="num">Total</th><th class="num">Solve %</th></tr>';
+    d.t1Agents.forEach(row => {
+      t1Table.innerHTML += `<tr><td>${row[0]}</td><td class="num">${row[1]}</td><td class="num">${row[2]}</td><td class="num">${row[3]}</td><td class="num">${row[4]}</td><td class="num">${row[5]}</td></tr>`;
+    });
+    document.getElementById('t1AgentFootnote').textContent = d.t1AgentFootnote || '';
+
+    const labels = d.t1Agents.map(r => r[0]);
+    const solved = d.t1Agents.map(r => r[1]);
+    const escT2 = d.t1Agents.map(r => r[2]);
+    const escT3 = d.t1Agents.map(r => r[3]);
+    t1AgentChart.data.labels = labels;
+    t1AgentChart.data.datasets[0].data = solved;
+    t1AgentChart.data.datasets[1].data = escT2;
+    t1AgentChart.data.datasets[2].data = escT3;
+    t1AgentChart.update();
+
+    const t2Table = document.getElementById('t2AgentTable');
+    t2Table.innerHTML = '<tr><th>Agent</th><th class="num">Received</th><th class="num">Solved</th><th class="num">→ T3</th><th class="num">Open</th></tr>';
+    d.t2Agents.forEach(row => {
+      t2Table.innerHTML += `<tr><td>${row[0]}</td><td class="num">${row[1]}</td><td class="num">${row[2]}</td><td class="num">${row[3]}</td><td class="num">${row[4]}</td></tr>`;
+    });
+    t2Table.innerHTML += `<tr class="total-row"><td>Total</td><td class="num">${d.t2Total[0]}</td><td class="num">${d.t2Total[1]}</td><td class="num">${d.t2Total[2]}</td><td class="num">${d.t2Total[3]}</td></tr>`;
+    document.getElementById('t2AgentFootnote').textContent = d.t2AgentFootnote || '';
+
+    const t2Labels = d.t2Agents.map(r => r[0]);
+    const t2Solved = d.t2Agents.map(r => r[2]);
+    const t2Esc = d.t2Agents.map(r => r[3]);
+    const t2Open = d.t2Agents.map(r => r[4]);
+    t2AgentChart.data.labels = t2Labels;
+    t2AgentChart.data.datasets[0].data = t2Solved;
+    t2AgentChart.data.datasets[1].data = t2Esc;
+    t2AgentChart.data.datasets[2].data = t2Open;
+    t2AgentChart.update();
+  }
+}
+
+// ---------- chart instances ----------
+let flowChart, solveChart, t1AgentChart, t2AgentChart;
+
+function fmtNum(n){ return Math.round(n); }
+
+function renderWeek(key) {
+  const d = weekData[key];
+  document.getElementById('subtitleText').textContent = d.subtitle;
+  document.getElementById('distDesc').textContent = `Where ${d.total} tickets that week ended up across the T1 → T2 → T3 chain`;
+
+  // KPI cards
+  document.getElementById('kpiRow').innerHTML = `
+    <div class="kpi-card">
+      <p class="kpi-label">Total tickets</p>
+      <p class="kpi-value">${d.total}</p>
+      <p class="kpi-sub">Created that week</p>
+    </div>
+    <div class="kpi-card">
+      <p class="kpi-label">Resolved by T1</p>
+      <p class="kpi-value">${d.t1} <span class="kpi-pct">${d.t1Pct}%</span></p>
+      <p class="kpi-sub">Never left T1</p>
+    </div>
+    <div class="kpi-card">
+      <p class="kpi-label">Escalated to T2</p>
+      <p class="kpi-value">${d.t2} <span class="kpi-pct">${d.t2Pct}%</span></p>
+      <p class="kpi-sub">Of total volume</p>
+    </div>
+    <div class="kpi-card">
+      <p class="kpi-label">Escalated to T3</p>
+      <p class="kpi-value">${d.t3} <span class="kpi-pct">${d.t3Pct}%</span></p>
+      <p class="kpi-sub">Of total volume</p>
+    </div>
+  `;
+
+  // Flow chart
+  const flowData = [d.total, d.t1, d.t2, d.t3];
+  const flowLabels = [`Total (100%)`, `T1 (${d.t1Pct}%)`, `To T2 (${d.t2Pct}%)`, `To T3 (${d.t3Pct}%)`];
+  flowChart.data.labels = flowLabels;
+  flowChart.data.datasets[0].data = flowData;
+  flowChart.update();
+
+  // Solve chart
+  solveChart.data.datasets[0].data = [d.t1Solved, d.t1Open];
+  solveChart.update();
+  document.getElementById('solveFootnote').textContent =
+    `T1 solve rate: ${d.t1Solved} of ${d.t1} tickets T1 owned end-to-end are Solved/Closed (${d.t1SolvedPct}%). The remaining ${d.t1Open} are still New/Open/Pending/On Hold.`;
+
+  // Agent sections
+  const t1Section = document.getElementById('t1AgentSection');
+  const t1Placeholder = document.getElementById('t1AgentPlaceholder');
+  const t2Section = document.getElementById('t2AgentSection');
+  const t2Placeholder = document.getElementById('t2AgentPlaceholder');
+
+  if (d.hasAgentDetail) {
+    t1Section.style.display = 'grid';
+    t1Placeholder.style.display = 'none';
+    t2Section.style.display = 'grid';
+    t2Placeholder.style.display = 'none';
+
+    const t1Table = document.getElementById('t1AgentTable');
+    t1Table.innerHTML = '<tr><th>Agent</th><th class="num">Solved</th><th class="num">Esc. T2</th><th class="num">Esc. T3 (direct)</th><th class="num">Total</th><th class="num">Solve %</th></tr>';
+    d.t1Agents.forEach(row => {
+      t1Table.innerHTML += `<tr><td>${row[0]}</td><td class="num">${row[1]}</td><td class="num">${row[2]}</td><td class="num">${row[3]}</td><td class="num">${row[4]}</td><td class="num">${row[5]}</td></tr>`;
+    });
+    document.getElementById('t1AgentFootnote').textContent = d.t1AgentFootnote || '';
+
+    const labels = d.t1Agents.map(r => r[0]);
+    const solved = d.t1Agents.map(r => r[1]);
+    const escT2 = d.t1Agents.map(r => r[2]);
+    const escT3 = d.t1Agents.map(r => r[3]);
+    t1AgentChart.data.labels = labels;
+    t1AgentChart.data.datasets[0].data = solved;
+    t1AgentChart.data.datasets[1].data = escT2;
+    t1AgentChart.data.datasets[2].data = escT3;
+    t1AgentChart.update();
+
+    const t2Table = document.getElementById('t2AgentTable');
+    t2Table.innerHTML = '<tr><th>Agent</th><th class="num">Received</th><th class="num">Solved</th><th class="num">→ T3</th><th class="num">Open</th></tr>';
+    d.t2Agents.forEach(row => {
+      t2Table.innerHTML += `<tr><td>${row[0]}</td><td class="num">${row[1]}</td><td class="num">${row[2]}</td><td class="num">${row[3]}</td><td class="num">${row[4]}</td></tr>`;
+    });
+    t2Table.innerHTML += `<tr class="total-row"><td>Total</td><td class="num">${d.t2Total[0]}</td><td class="num">${d.t2Total[1]}</td><td class="num">${d.t2Total[2]}</td><td class="num">${d.t2Total[3]}</td></tr>`;
+    document.getElementById('t2AgentFootnote').textContent = d.t2AgentFootnote || '';
+
+    const t2Labels = d.t2Agents.map(r => r[0]);
+    const t2Solved = d.t2Agents.map(r => r[2]);
+    const t2Esc = d.t2Agents.map(r => r[3]);
+    const t2Open = d.t2Agents.map(r => r[4]);
+    t2AgentChart.data.labels = t2Labels;
+    t2AgentChart.data.datasets[0].data = t2Solved;
+    t2AgentChart.data.datasets[1].data = t2Esc;
+    t2AgentChart.data.datasets[2].data = t2Open;
+    t2AgentChart.update();
+  } else {
+    t1Section.style.display = 'none';
+    t1Placeholder.style.display = 'block';
+    t1Placeholder.textContent = 'Per-agent breakdown is only available for the most recent week. Ask for a historical pull if you need this for an earlier week.';
+    t2Section.style.display = 'none';
+    t2Placeholder.style.display = 'block';
+    t2Placeholder.textContent = 'Per-agent breakdown is only available for the most recent week. Ask for a historical pull if you need this for an earlier week.';
+  }
+}
+
+// ---------- initialize charts (empty, filled by renderWeek) ----------
+flowChart = new Chart(document.getElementById('flowChart'), {
+  type: 'bar',
+  data: { labels: [], datasets: [{ data: [], backgroundColor: ['#654A8C', '#AC75FF', '#899CFA', '#B0F7BA'], borderRadius: 4, maxBarThickness: 50 }] },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false }, tooltip: tooltipStyle },
+    scales: { x: { ticks: { font: { size: 11 } }, grid: { display: false } }, y: { ticks: { font: { size: 11 } }, grid: gridStyle, beginAtZero: true } }
+  },
+  plugins: [{
+    id: 'flowLabels',
+    afterDatasetsDraw(chart) {
+      const {ctx} = chart;
+      chart.data.datasets[0].data.forEach((val, i) => {
+        const meta = chart.getDatasetMeta(0).data[i];
+        if (!meta) return;
+        ctx.save(); ctx.fillStyle = '#F5F5F4'; ctx.font = '500 12px Inter'; ctx.textAlign = 'center';
+        ctx.fillText(fmtNum(val), meta.x, meta.y - 8); ctx.restore();
+      });
+    }
+  }]
+});
+
+solveChart = new Chart(document.getElementById('solveChart'), {
+  type: 'bar',
+  data: { labels: ['Solved / Closed', 'Still open'], datasets: [{ data: [], backgroundColor: ['#AC75FF', '#525B89'], borderRadius: 4, maxBarThickness: 40 }] },
+  options: {
+    indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false }, tooltip: tooltipStyle },
+    scales: { x: { ticks: { font: { size: 11 } }, grid: gridStyle, beginAtZero: true }, y: { ticks: { font: { size: 12 } }, grid: { display: false } } }
+  },
+  plugins: [{
+    id: 'solveLabels',
+    afterDatasetsDraw(chart) {
+      const {ctx} = chart;
+      chart.data.datasets[0].data.forEach((val, i) => {
+        const meta = chart.getDatasetMeta(0).data[i];
+        if (!meta) return;
+        ctx.save(); ctx.fillStyle = '#F5F5F4'; ctx.font = '500 12px Inter'; ctx.textAlign = 'left';
+        ctx.fillText(fmtNum(val), meta.x + 8, meta.y + 4); ctx.restore();
+      });
+    }
+  }]
+});
+
+t1AgentChart = new Chart(document.getElementById('t1AgentChart'), {
+  type: 'bar',
+  data: { labels: [], datasets: [
+    { label: 'Solved', data: [], backgroundColor: '#AC75FF', borderRadius: 3, maxBarThickness: 18 },
+    { label: 'Escalated to T2', data: [], backgroundColor: '#654A8C', borderRadius: 3, maxBarThickness: 18 },
+    { label: 'Escalated to T3 (direct)', data: [], backgroundColor: '#525B89', borderRadius: 3, maxBarThickness: 18 }
+  ]},
+  options: {
+    indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: true, position: 'top', labels: { color: '#9A9998', font: { size: 11 }, boxWidth: 10, boxHeight: 10 } }, tooltip: tooltipStyle },
+    scales: { x: { stacked: true, ticks: { font: { size: 11 } }, grid: gridStyle, beginAtZero: true }, y: { stacked: true, ticks: { font: { size: 11 } }, grid: { display: false } } }
+  }
+});
+
+t2AgentChart = new Chart(document.getElementById('t2AgentChart'), {
+  type: 'bar',
+  data: { labels: [], datasets: [
+    { label: 'Solved', data: [], backgroundColor: '#AC75FF', borderRadius: 3, maxBarThickness: 34 },
+    { label: 'Escalated to T3', data: [], backgroundColor: '#654A8C', borderRadius: 3, maxBarThickness: 34 },
+    { label: 'Still open', data: [], backgroundColor: '#525B89', borderRadius: 3, maxBarThickness: 34 }
+  ]},
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: true, position: 'top', labels: { color: '#9A9998', font: { size: 11 }, boxWidth: 10, boxHeight: 10 } }, tooltip: tooltipStyle },
+    scales: { x: { stacked: true, ticks: { font: { size: 11 } }, grid: { display: false } }, y: { stacked: true, ticks: { font: { size: 11 } }, grid: gridStyle, beginAtZero: true } }
+  }
+});
+
+// ---------- month-over-month agent trend (static, always full Feb-Jun) ----------
+const momMonths = ["Feb","Mar","Apr","May","Jun"];
+const momData = {
+  "Karthik Haralayya": {Feb:[27,43,62.8],Mar:[17,33,51.5],Apr:[36,52,69.2],May:[39,62,62.9],Jun:[61,74,82.4]},
+  "Nesara Nagaraju": {Feb:[27,43,62.8],Mar:[38,60,63.3],Apr:[41,55,74.5],May:[31,47,66.0],Jun:[50,61,82.0]},
+  "Nidhi Mahankali": {Feb:[26,36,72.2],Mar:[17,23,73.9],Apr:[27,43,62.8],May:[38,59,64.4],Jun:[36,47,76.6]},
+  "Sobiya Khan": {Apr:[7,12,58.3],May:[12,19,63.2],Jun:[31,47,66.0]},
+  "Amruth Lakshman": {Feb:[20,30,66.7],Mar:[30,50,60.0],Apr:[21,36,58.3],May:[29,41,70.7],Jun:[29,43,67.4]},
+  "Manjunath N": {Feb:[25,31,80.6],Mar:[54,75,72.0],Apr:[28,44,63.6],May:[23,33,69.7],Jun:[31,36,86.1]},
+  "Vinodakumara A": {Feb:[24,47,51.1],Mar:[25,37,67.6],Apr:[14,26,53.8],May:[27,35,77.1],Jun:[25,33,75.8]},
+  "Anmol Tanwer": {Feb:[43,61,70.5],Mar:[16,25,64.0],Apr:[24,35,68.6],May:[19,34,55.9],Jun:[16,23,69.6]},
+  "Manoj GH": {Feb:[35,60,58.3],Mar:[28,49,57.1],Apr:[28,47,59.6],May:[31,45,68.9],Jun:[18,20,90.0]},
+  "Lavanya TU": {Feb:[31,48,64.6],Mar:[37,54,68.5],Apr:[35,49,71.4],May:[32,43,74.4],Jun:[13,20,65.0]},
+  "Vishakha K": {Feb:[45,60,75.0],Mar:[22,36,61.1],Apr:[21,33,63.6],May:[43,60,71.7],Jun:[11,16,68.8]},
+  "Abdul Rahaman": {Feb:[37,58,63.8],Mar:[45,58,77.6],Apr:[27,40,67.5],May:[20,29,69.0],Jun:[8,10,80.0]}
+};
+
+const momTable = document.getElementById('momTrendTable');
+const momAgentsSorted = Object.keys(momData).sort((a,b) => {
+  const aJun = momData[a].Jun ? momData[a].Jun[1] : 0;
+  const bJun = momData[b].Jun ? momData[b].Jun[1] : 0;
+  return bJun - aJun;
+});
+momAgentsSorted.forEach(name => {
+  let rowHtml = `<tr><td>${name}</td>`;
+  let prevPct = null;
+  momMonths.forEach(m => {
+    const d = momData[name][m];
+    if (!d) {
+      rowHtml += `<td class="cell-empty">—</td>`;
+      prevPct = null;
+    } else {
+      const [solved, total, pct] = d;
+      let deltaHtml = '';
+      if (prevPct !== null) {
+        const delta = Math.round((pct - prevPct) * 10) / 10;
+        const sign = delta >= 0 ? '+' : '';
+        const cls = delta >= 0 ? 'delta-up' : 'delta-down';
+        deltaHtml = ` <span class="${cls}">(${sign}${delta}pt)</span>`;
+      }
+      rowHtml += `<td class="num">${solved}/${total} (${pct}%)${deltaHtml}</td>`;
+      prevPct = pct;
+    }
+  });
+  rowHtml += `</tr>`;
+  momTable.innerHTML += rowHtml;
+});
+
+// line chart: T1 solve rate trend
+const t1LineColors = ['#AC75FF','#899CFA','#B0F7BA','#FFB088','#FF8AC6','#7FE0E0','#F7D154','#C9A0FF','#82D9A0','#FF9F9F','#A0C4FF','#D9B380'];
+const t1LineDatasets = momAgentsSorted.map((name, i) => ({
+  label: name,
+  data: momMonths.map(m => momData[name][m] ? momData[name][m][2] : null),
+  borderColor: t1LineColors[i % t1LineColors.length],
+  backgroundColor: t1LineColors[i % t1LineColors.length],
+  borderWidth: 2,
+  pointRadius: 3,
+  tension: 0.25,
+  spanGaps: false
+}));
+new Chart(document.getElementById('t1MomChart'), {
+  type: 'line',
+  data: { labels: momMonths, datasets: t1LineDatasets },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: true, position: 'right', labels: { color: '#9A9998', font: { size: 10 }, boxWidth: 8, boxHeight: 8 } }, tooltip: { ...tooltipStyle, callbacks: { label: (ctx) => `${ctx.dataset.label}: ${ctx.parsed.y}%` } } },
+    scales: {
+      x: { ticks: { font: { size: 11 } }, grid: { display: false } },
+      y: { ticks: { font: { size: 11 }, callback: (v) => v + '%' }, grid: gridStyle, title: { display: true, text: 'Solve rate %', color: '#797777', font: { size: 10 } } }
+    }
+  }
+});
+
+// ---------- T2 month-over-month agent trend (static, always full Feb-Jun) ----------
+const t2MomData = {
+  "Kunal Chavan": {Feb:[3,31,9.7],Mar:[6,44,13.6],Apr:[2,28,7.1],May:[3,28,10.7],Jun:[1,26,3.8]},
+  "Chetan Salvi": {Feb:[12,33,36.4],Mar:[4,22,18.2],Apr:[18,33,54.5],May:[8,36,22.2],Jun:[9,20,45.0]},
+  "Selwyn Moses": {Feb:[8,43,18.6],Mar:[3,28,10.7],Apr:[7,28,25.0],May:[6,24,25.0],Jun:[1,16,6.2]},
+  "Priyanka Dubey": {Feb:[7,20,35.0],Mar:[9,29,31.0],Apr:[12,44,27.3],May:[9,27,33.3],Jun:[6,12,50.0]},
+  "Abhay Kumar": {Feb:[9,50,18.0],Mar:[7,41,17.1],Apr:[2,18,11.1],May:[9,25,36.0],Jun:[1,8,12.5]}
+};
+
+const t2MomTable = document.getElementById('t2MomTrendTable');
+const t2MomAgentsSorted = Object.keys(t2MomData).sort((a,b) => {
+  const aJun = t2MomData[a].Jun ? t2MomData[a].Jun[1] : 0;
+  const bJun = t2MomData[b].Jun ? t2MomData[b].Jun[1] : 0;
+  return bJun - aJun;
+});
+t2MomAgentsSorted.forEach(name => {
+  let rowHtml = `<tr><td>${name}</td>`;
+  let prevPct = null;
+  momMonths.forEach(m => {
+    const d = t2MomData[name][m];
+    if (!d) {
+      rowHtml += `<td class="cell-empty">—</td>`;
+      prevPct = null;
+    } else {
+      const [solved, handled, pct] = d;
+      let deltaHtml = '';
+      if (prevPct !== null) {
+        const delta = Math.round((pct - prevPct) * 10) / 10;
+        const sign = delta >= 0 ? '+' : '';
+        const cls = delta >= 0 ? 'delta-up' : 'delta-down';
+        deltaHtml = ` <span class="${cls}">(${sign}${delta}pt)</span>`;
+      }
+      rowHtml += `<td class="num">${solved}/${handled} (${pct}%)${deltaHtml}</td>`;
+      prevPct = pct;
+    }
+  });
+  rowHtml += `</tr>`;
+  t2MomTable.innerHTML += rowHtml;
+});
+
+// line chart: T2 solve rate trend
+const t2LineColors = ['#654A8C','#525B89','#4A8C7A','#8C6A4A','#8C4A6E'];
+const t2LineDatasets = t2MomAgentsSorted.map((name, i) => ({
+  label: name,
+  data: momMonths.map(m => t2MomData[name][m] ? t2MomData[name][m][2] : null),
+  borderColor: t2LineColors[i % t2LineColors.length],
+  backgroundColor: t2LineColors[i % t2LineColors.length],
+  borderWidth: 2,
+  pointRadius: 3,
+  tension: 0.25,
+  spanGaps: false
+}));
+new Chart(document.getElementById('t2MomChart'), {
+  type: 'line',
+  data: { labels: momMonths, datasets: t2LineDatasets },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: true, position: 'right', labels: { color: '#9A9998', font: { size: 10 }, boxWidth: 8, boxHeight: 8 } }, tooltip: { ...tooltipStyle, callbacks: { label: (ctx) => `${ctx.dataset.label}: ${ctx.parsed.y}%` } } },
+    scales: {
+      x: { ticks: { font: { size: 11 } }, grid: { display: false } },
+      y: { ticks: { font: { size: 11 }, callback: (v) => v + '%' }, grid: gridStyle, title: { display: true, text: 'Solve rate %', color: '#797777', font: { size: 10 } } }
+    }
+  }
+});
+
+// ---------- resolution time trend (static, always full Feb-Jun) ----------
+const resTimeData = {
+  "Karthik Haralayya": {Feb:5.37,Mar:4.71,Apr:2.67,May:2.90,Jun:2.34},
+  "Nesara Nagaraju": {Feb:3.04,Mar:4.05,Apr:3.41,May:2.97,Jun:3.22},
+  "Nidhi Mahankali": {Feb:4.00,Mar:4.24,Apr:3.44,May:3.68,Jun:4.00},
+  "Sobiya Khan": {Apr:3.57,May:5.83,Jun:5.19},
+  "Amruth Lakshman": {Feb:11.25,Mar:5.80,Apr:5.90,May:8.10,Jun:5.93},
+  "Manjunath N": {Feb:4.40,Mar:4.24,Apr:2.32,May:4.26,Jun:2.90},
+  "Vinodakumara A": {Feb:9.42,Mar:8.24,Apr:5.50,May:6.11,Jun:5.96},
+  "Anmol Tanwer": {Feb:4.26,Mar:5.50,Apr:5.21,May:5.58,Jun:4.29},
+  "Manoj GH": {Feb:4.09,Mar:5.43,Apr:5.25,May:4.39,Jun:4.28},
+  "Lavanya TU": {Feb:6.39,Mar:6.89,Apr:4.91,May:4.34,Jun:6.43},
+  "Vishakha K": {Feb:6.76,Mar:6.23,Apr:5.95,May:4.93,Jun:10.09},
+  "Abdul Rahaman": {Feb:6.30,Mar:5.00,Apr:5.26,May:9.25,Jun:5.00}
+};
+const resTimeTable = document.getElementById('resTimeTable');
+const resTimeAgentsSorted = Object.keys(resTimeData).sort((a,b) => {
+  const aJun = resTimeData[a].Jun !== undefined ? resTimeData[a].Jun : 999;
+  const bJun = resTimeData[b].Jun !== undefined ? resTimeData[b].Jun : 999;
+  return aJun - bJun;
+});
+resTimeAgentsSorted.forEach(name => {
+  let rowHtml = `<tr><td>${name}</td>`;
+  momMonths.forEach(m => {
+    const v = resTimeData[name][m];
+    rowHtml += v !== undefined ? `<td class="num">${v.toFixed(1)}d</td>` : `<td class="cell-empty">—</td>`;
+  });
+  rowHtml += `</tr>`;
+  resTimeTable.innerHTML += rowHtml;
+});
+const resLineDatasets = resTimeAgentsSorted.map((name, i) => ({
+  label: name,
+  data: momMonths.map(m => resTimeData[name][m] !== undefined ? resTimeData[name][m] : null),
+  borderColor: t1LineColors[i % t1LineColors.length],
+  backgroundColor: t1LineColors[i % t1LineColors.length],
+  borderWidth: 2,
+  pointRadius: 3,
+  tension: 0.25,
+  spanGaps: false
+}));
+new Chart(document.getElementById('resTimeChart'), {
+  type: 'line',
+  data: { labels: momMonths, datasets: resLineDatasets },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: true, position: 'right', labels: { color: '#9A9998', font: { size: 10 }, boxWidth: 8, boxHeight: 8 } }, tooltip: { ...tooltipStyle, callbacks: { label: (ctx) => `${ctx.dataset.label}: ${ctx.parsed.y} days` } } },
+    scales: {
+      x: { ticks: { font: { size: 11 } }, grid: { display: false } },
+      y: { ticks: { font: { size: 11 }, callback: (v) => v + 'd' }, grid: gridStyle, title: { display: true, text: 'Avg days to resolution', color: '#797777', font: { size: 10 } } }
+    }
+  }
+});
+
+// ---------- CSAT org-wide trend (static, always full Feb-Jun) ----------
+const csatPct = [100.0, 88.9, 100.0, 100.0, 90.0];
+const csatCounts = ['8/8', '8/9', '7/7', '8/8', '9/10'];
+new Chart(document.getElementById('csatChart'), {
+  type: 'line',
+  data: {
+    labels: momMonths,
+    datasets: [{
+      label: 'CSAT positive % (Very Satisfied + Satisfied)',
+      data: csatPct,
+      borderColor: '#B0F7BA', backgroundColor: '#B0F7BA',
+      borderWidth: 2, pointRadius: 5, tension: 0.25
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { display: true, labels: { color: '#9A9998', font: { size: 11 }, boxWidth: 10, boxHeight: 10 } },
+      tooltip: { ...tooltipStyle, callbacks: { label: (ctx) => `${csatCounts[ctx.dataIndex]} positive (${ctx.parsed.y}%)` } }
+    },
+    scales: {
+      x: { ticks: { font: { size: 11 } }, grid: { display: false } },
+      y: { min: 0, max: 100, ticks: { font: { size: 11 }, callback: (v) => v + '%' }, grid: gridStyle, title: { display: true, text: 'CSAT positive %', color: '#797777', font: { size: 10 } } }
+    }
+  }
+});
+
+// ---------- trend chart (static, always full 6 weeks) ----------
+const weekLabels = ['May 24','May 31','Jun 07','Jun 14','Jun 21','Jun 28'];
+const volumes = [128, 108, 121, 113, 108, 126];
+const escRates = [29.7, 22.2, 20.7, 15.9, 20.4, 14.3];
+new Chart(document.getElementById('trendChart'), {
+  data: {
+    labels: weekLabels,
+    datasets: [
+      { type: 'bar', label: 'Weekly volume', data: volumes, backgroundColor: '#654A8C', borderRadius: 4, maxBarThickness: 44, yAxisID: 'y' },
+      { type: 'line', label: 'Escalation rate (%)', data: escRates, borderColor: '#B0F7BA', backgroundColor: '#B0F7BA', borderWidth: 2, pointRadius: 4, pointBackgroundColor: '#B0F7BA', tension: 0.3, yAxisID: 'y1' }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: true, labels: { color: '#9A9998', font: { size: 11 }, boxWidth: 10, boxHeight: 10 } }, tooltip: tooltipStyle },
+    scales: {
+      x: { ticks: { font: { size: 11 } }, grid: { display: false } },
+      y: { position: 'left', ticks: { font: { size: 11 } }, grid: gridStyle, title: { display: true, text: 'Tickets', color: '#797777', font: { size: 10 } } },
+      y1: { position: 'right', ticks: { font: { size: 11 }, callback: (v) => v + '%' }, grid: { display: false }, title: { display: true, text: 'Escalation %', color: '#797777', font: { size: 10 } } }
+    }
+  }
+});
+
+// ---------- wire up selector ----------
+sel.addEventListener('change', (e) => renderWeek(e.target.value));
+sel.value = 'jul12';
+renderWeek('jul12');
 </script>
 </body>
 </html>
