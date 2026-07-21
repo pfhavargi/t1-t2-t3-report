@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>OKR — Goals 2026</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: #1A1919;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: #F5F5F4;
+    padding: 32px 24px 64px;
+  }
+  .container { max-width: 1100px; margin: 0 auto; }
+  .eyebrow { color: #AC75FF; font-size: 12px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; margin: 0 0 8px; }
+  h1 { font-size: 28px; font-weight: 500; margin: 0 0 6px; color: #F5F5F4; }
+  .subtitle { color: #9A9998; font-size: 14px; margin: 0 0 32px; }
+
+  .card { background: #292928; border-radius: 12px; padding: 24px; margin-bottom: 24px; }
+  .section-title { font-size: 16px; font-weight: 500; margin: 0 0 4px; color: #F5F5F4; }
+  .section-desc { color: #9A9998; font-size: 13px; margin: 0 0 18px; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  thead th {
+    background: #211F2E; color: #C9BEEF; text-align: center; padding: 12px 10px;
+    font-size: 12px; text-transform: uppercase; letter-spacing: 0.03em; font-weight: 600;
+  }
+  thead th:first-child { text-align: left; }
+  tbody td { padding: 13px 10px; text-align: center; font-weight: 600; border-bottom: 1px solid #1A1919; }
+  tbody td:first-child { text-align: left; color: #F5F5F4; font-weight: 600; background: #211F2E; }
+  tbody tr:last-child td { border-bottom: none; }
+  .goal-met { background: #8FBF9F; color: #1A1919; }
+  .goal-notmet { background: #E8D9A8; color: #1A1919; }
+  .goal-na { background: #383737; color: #797777; font-weight: 400; }
+
+  .legend { display: flex; gap: 20px; margin-top: 16px; font-size: 12px; color: #9A9998; }
+  .legend-swatch { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 6px; vertical-align: middle; }
+
+  .footnote { color: #484747; font-size: 11px; margin-top: 14px; line-height: 1.6; }
+  .pending-note {
+    background: #292928; border: 1px dashed #393838; border-radius: 10px;
+    padding: 16px 20px; color: #9A9998; font-size: 13px; margin-top: 24px; line-height: 1.6;
+  }
+  .source-caption { text-align: center; color: #484747; font-size: 11px; margin-top: 40px; border-top: 1px solid #292928; padding-top: 16px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div style="display:flex;flex-wrap:wrap;gap:0;margin-bottom:18px;"><a href="../../" style="display:inline-block;padding:6px 12px;border-radius:6px;font-size:12px;text-decoration:none;margin-right:4px;color:#9A9998;background:#292928;border:1px solid #393838;">Home</a><a href="../t1-t2-t3/" style="display:inline-block;padding:6px 12px;border-radius:6px;font-size:12px;text-decoration:none;margin-right:4px;color:#9A9998;background:#292928;border:1px solid #393838;">T1 → T2 → T3</a><a href="../issue-types/" style="display:inline-block;padding:6px 12px;border-radius:6px;font-size:12px;text-decoration:none;margin-right:4px;color:#9A9998;background:#292928;border:1px solid #393838;">Issue Types</a><a href="../cse-individual/" style="display:inline-block;padding:6px 12px;border-radius:6px;font-size:12px;text-decoration:none;margin-right:4px;color:#9A9998;background:#292928;border:1px solid #393838;">CSE Individual</a><a href="../okr/" style="display:inline-block;padding:6px 12px;border-radius:6px;font-size:12px;text-decoration:none;margin-right:4px;background:#AC75FF;color:#1A1919;font-weight:600;">OKR</a></div>
+  <p class="eyebrow">Customer Support Engineering</p>
+  <h1>OKR — Goals 2026</h1>
+  <p class="subtitle">Monthly progress against team-level targets, February through June 2026.</p>
+
+  <div class="card">
+    <p class="section-title">Case CSAT</p>
+    <p class="section-desc">Scale is 1–5 (5 = highest). Goal: greater than 4.6.</p>
+    <table>
+      <thead>
+        <tr><th>Goal</th><th>Feb</th><th>March</th><th>April</th><th>May</th><th>June</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Case CSAT &gt; 4.6</td>
+          <td class="goal-notmet">4.38</td>
+          <td class="goal-notmet">4.57</td>
+          <td class="goal-notmet">4.58</td>
+          <td class="goal-met">4.61</td>
+          <td class="goal-met">4.63</td>
+        </tr>
+        <tr>
+          <td>Chat CSAT &gt; 4.6</td>
+          <td class="goal-na" colspan="5" style="text-align:center;">YTD average: <strong>4.57 / 5</strong> (127 rated 5, 24 rated 4, 6 rated 3, 1 rated 2, 8 rated 1 — 166 responses total). Monthly breakdown not yet available — see footnote.</td>
+        </tr>
+      </tbody>
+    </table>
+    <p class="footnote">Chat CSAT shown as a single YTD figure, not month-by-month like Case CSAT — the source report doesn't split by month directly, and getting an exact monthly figure needs either the Salesforce connector (currently unavailable) or a report reconfiguration. Will be broken out by month once either is available.</p>
+  </div>
+
+  <div class="card">
+    <p class="section-title">Service level & handling</p>
+    <p class="section-desc">SLA, ticket age, and CSE ownership share against target.</p>
+    <table>
+      <thead>
+        <tr><th>Goal</th><th>Feb</th><th>March</th><th>April</th><th>May</th><th>June</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>99.9% SLA (FRT)</td>
+          <td class="goal-notmet">99.81%</td>
+          <td class="goal-met">99.90%</td>
+          <td class="goal-met">99.93%</td>
+          <td class="goal-notmet">99.89%</td>
+          <td class="goal-met">99.92%</td>
+        </tr>
+        <tr>
+          <td>Avg Age T1 &lt; 4</td>
+          <td class="goal-notmet">4.2</td>
+          <td class="goal-notmet">4.9</td>
+          <td class="goal-notmet">4.7</td>
+          <td class="goal-notmet">4.6</td>
+          <td class="goal-notmet">4.6</td>
+        </tr>
+        <tr>
+          <td>Avg Age T2 &lt; 10</td>
+          <td class="goal-notmet">11.7</td>
+          <td class="goal-notmet">14.8</td>
+          <td class="goal-notmet">15.3</td>
+          <td class="goal-notmet">14.5</td>
+          <td class="goal-notmet">14.04</td>
+        </tr>
+        <tr>
+          <td>85% Cases Handled by CSE</td>
+          <td class="goal-notmet">80.63%</td>
+          <td class="goal-notmet">81.68%</td>
+          <td class="goal-notmet">81.51%</td>
+          <td class="goal-notmet">82.72%</td>
+          <td class="goal-met">84.40%</td>
+        </tr>
+        <tr>
+          <td>AI Copilot Usage</td>
+          <td class="goal-na">—</td>
+          <td class="goal-na">—</td>
+          <td class="goal-na">—</td>
+          <td class="goal-na">—</td>
+          <td class="goal-na">—</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="legend">
+      <span><span class="legend-swatch" style="background:#8FBF9F;"></span>Goal met</span>
+      <span><span class="legend-swatch" style="background:#E8D9A8;"></span>Goal not yet met</span>
+      <span><span class="legend-swatch" style="background:#383737;"></span>Not yet tracked</span>
+    </div>
+    <p class="footnote">Avg Age = average age in days of currently open tickets at that tier (not resolution time — a case can be "aged" and still be actively worked). 85% Cases Handled by CSE = % of total volume resolved without escalating to T3. June's 84.40% is the closest to goal all year but still just under the 85% target.</p>
+  </div>
+
+  <div class="pending-note">
+    <strong>Known gaps in this page:</strong> Chat CSAT has a YTD figure (4.57/5) but not yet a monthly breakdown — needs the Salesforce connector back online to split it out properly. AI Copilot Usage isn't populated (it was already blank in the source tracking sheet for every month shown). Ask to refresh this page once the connector's available again.
+  </div>
+
+  <p class="source-caption">Case CSAT and service-level metrics (SLA, Age, CSE share) provided directly by the user, Feb–Jun 2026. Chat CSAT (YTD figure) pulled via Salesforce report browser access on Jul 16, 2026, while the SOQL connector was unavailable — monthly breakdown still pending. Page last edited Jul 20, 2026.</p>
+
+</div>
+</body>
+</html>
