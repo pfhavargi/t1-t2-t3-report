@@ -63,6 +63,12 @@ function resolvePeriod(period) {
   if (period === "last_month") {
     return { soqlDateClause: "CreatedDate = LAST_MONTH" };
   }
+  if (period === "ytd") {
+    // Feb 1 of the current year through now -- matches the "Feb-Till Date"
+    // view used across the other reports in this hub.
+    const year = now.getFullYear();
+    return { soqlDateClause: `CreatedDate >= ${year}-02-01T00:00:00Z AND CreatedDate <= ${now.toISOString()}` };
+  }
   // Fallback: last 7 days
   return { soqlDateClause: "CreatedDate = LAST_N_DAYS:7" };
 }
