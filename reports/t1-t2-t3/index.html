@@ -117,6 +117,7 @@
         <button id="viewWeekBtn" class="view-btn active">Week</button>
         <button id="viewMonthBtn" class="view-btn">Month</button>
         <button id="viewQuarterBtn" class="view-btn">Quarter</button>
+        <button id="viewYtdBtn" class="view-btn">Feb–Till Date</button>
       </div>
       <select id="weekSelect"></select>
       <select id="monthSelect" style="display:none;"></select>
@@ -710,7 +711,41 @@ const quarterData = {
 };
 const monthOrder = ['jul26','jun26','may26','apr26','mar26','feb26'];
 const quarterOrder = ['q2fy26','q1fy26'];
-let currentView = 'week'; // 'week', 'month', or 'quarter'
+
+// ---------- YTD DATA (Feb 1, 2026 - today) ----------
+const ytdData = {
+  label: "Feb 1 – Jul 20, 2026 (Feb–Till Date)",
+  subtitle: "Feb 1 – Jul 20, 2026 (year to date)",
+  total: 2946, t1: 2135, t2: 195, t3: 616,
+  t1Pct: 72.5, t2Pct: 6.6, t3Pct: 20.9,
+  t1Solved: 1931, t1Open: 204, t1SolvedPct: 90.4,
+  t1Agents: [
+    ["Nesara Nagaraju", 220, 100, 0, 320, "68.8%"],
+    ["Karthik Haralayya", 197, 105, 1, 303, "65.0%"],
+    ["Lavanya TU", 168, 65, 6, 239, "70.3%"],
+    ["Manjunath N", 176, 55, 7, 238, "73.9%"],
+    ["Nidhi Mahankali", 161, 68, 7, 236, "68.2%"],
+    ["Manoj GH", 149, 79, 5, 233, "63.9%"],
+    ["Amruth Lakshman", 154, 75, 2, 231, "66.7%"],
+    ["Vishakha K", 151, 61, 4, 216, "69.9%"],
+    ["Abdul Rahaman", 140, 47, 12, 199, "70.4%"],
+    ["Vinodakumara A", 123, 72, 1, 196, "62.8%"],
+    ["Anmol Tanwer", 129, 54, 7, 190, "67.9%"],
+    ["Sobiya Khan", 58, 16, 16, 90, "64.4%"]
+  ],
+  t1AgentFootnote: "Covers Feb 1 – Jul 20, 2026. 30 additional cases went through a \"Spam Cases\" system queue and 7 through \"CDP Team\" (auto-routed, not agent-solved) — excluded from this table.",
+  t2Agents: [
+    ["Kunal Chavan", 168, 15, 144, 9],
+    ["Chetan Salvi", 159, 52, 101, 6],
+    ["Selwyn Moses", 150, 26, 120, 4],
+    ["Abhay Kumar", 149, 29, 118, 2],
+    ["Priyanka Dubey", 139, 44, 93, 2]
+  ],
+  t2Total: [765, 166, 576, 23],
+  t2AgentFootnote: "Aggregated from validated monthly/weekly figures (Feb through the week of Jul 12–18) rather than re-parsed from raw case history, to avoid the transcription-error risk of hand-processing hundreds of raw rows at once. \"Received\" reflects escalation events for cases created in each period, not a live current-T2 snapshot — so it won't match a simple current count of T2-status cases today."
+};
+
+let currentView = 'week'; // 'week', 'month', 'quarter', or 'ytd'
 
 // ---------- populate dropdowns ----------
 const sel = document.getElementById('weekSelect');
@@ -741,12 +776,14 @@ quarterOrder.forEach(key => {
 const viewWeekBtn = document.getElementById('viewWeekBtn');
 const viewMonthBtn = document.getElementById('viewMonthBtn');
 const viewQuarterBtn = document.getElementById('viewQuarterBtn');
+const viewYtdBtn = document.getElementById('viewYtdBtn');
 
 function setView(view) {
   currentView = view;
   viewWeekBtn.classList.toggle('active', view === 'week');
   viewMonthBtn.classList.toggle('active', view === 'month');
   viewQuarterBtn.classList.toggle('active', view === 'quarter');
+  viewYtdBtn.classList.toggle('active', view === 'ytd');
   sel.style.display = view === 'week' ? 'block' : 'none';
   monthSel.style.display = view === 'month' ? 'block' : 'none';
   quarterSel.style.display = view === 'quarter' ? 'block' : 'none';
@@ -756,15 +793,18 @@ function setView(view) {
   } else if (view === 'month') {
     monthSel.value = monthOrder[0];
     renderMonth(monthSel.value);
-  } else {
+  } else if (view === 'quarter') {
     quarterSel.value = quarterOrder[0];
     renderQuarter(quarterSel.value);
+  } else {
+    renderYtd();
   }
 }
 
 viewWeekBtn.addEventListener('click', () => setView('week'));
 viewMonthBtn.addEventListener('click', () => setView('month'));
 viewQuarterBtn.addEventListener('click', () => setView('quarter'));
+viewYtdBtn.addEventListener('click', () => setView('ytd'));
 monthSel.addEventListener('change', (e) => renderMonth(e.target.value));
 quarterSel.addEventListener('change', (e) => renderQuarter(e.target.value));
 
@@ -854,6 +894,84 @@ function renderQuarter(key) {
     t2AgentChart.data.datasets[2].data = t2Open;
     t2AgentChart.update();
   }
+}
+
+function renderYtd() {
+  const d = ytdData;
+  document.getElementById('subtitleText').textContent = d.subtitle;
+  document.getElementById('distDesc').textContent = `Where ${d.total} tickets since Feb 1, 2026 ended up across the T1 → T2 → T3 chain`;
+
+  document.getElementById('kpiRow').innerHTML = `
+    <div class="kpi-card">
+      <p class="kpi-label">Total tickets</p>
+      <p class="kpi-value">${d.total}</p>
+      <p class="kpi-sub">Created Feb 1 – Jul 20, 2026</p>
+    </div>
+    <div class="kpi-card">
+      <p class="kpi-label">Resolved by T1</p>
+      <p class="kpi-value">${d.t1} <span class="kpi-pct">${d.t1Pct}%</span></p>
+      <p class="kpi-sub">Never left T1</p>
+    </div>
+    <div class="kpi-card">
+      <p class="kpi-label">Escalated to T2</p>
+      <p class="kpi-value">${d.t2} <span class="kpi-pct">${d.t2Pct}%</span></p>
+      <p class="kpi-sub">Of total volume</p>
+    </div>
+    <div class="kpi-card">
+      <p class="kpi-label">Escalated to T3</p>
+      <p class="kpi-value">${d.t3} <span class="kpi-pct">${d.t3Pct}%</span></p>
+      <p class="kpi-sub">Of total volume</p>
+    </div>
+  `;
+
+  flowChart.data.labels = [`Total (100%)`, `T1 (${d.t1Pct}%)`, `To T2 (${d.t2Pct}%)`, `To T3 (${d.t3Pct}%)`];
+  flowChart.data.datasets[0].data = [d.total, d.t1, d.t2, d.t3];
+  flowChart.update();
+
+  solveChart.data.datasets[0].data = [d.t1Solved, d.t1Open];
+  solveChart.update();
+  document.getElementById('solveFootnote').textContent =
+    `T1 solve rate: ${d.t1Solved} of ${d.t1} tickets T1 owned end-to-end are Solved/Closed (${d.t1SolvedPct}%). The remaining ${d.t1Open} are still New/Open/Pending/On Hold. This is the full year-to-date view, so the solve rate is naturally higher than any single recent week/month — older tickets in this range have had much more time to reach resolution.`;
+
+  document.getElementById('t1AgentSection').style.display = 'grid';
+  document.getElementById('t1AgentPlaceholder').style.display = 'none';
+  document.getElementById('t2AgentSection').style.display = 'grid';
+  document.getElementById('t2AgentPlaceholder').style.display = 'none';
+
+  const t1Table = document.getElementById('t1AgentTable');
+  t1Table.innerHTML = '<tr><th>Agent</th><th class="num">Solved</th><th class="num">Esc. T2</th><th class="num">Esc. T3 (direct)</th><th class="num">Total</th><th class="num">Solve %</th></tr>';
+  d.t1Agents.forEach(row => {
+    t1Table.innerHTML += `<tr><td>${row[0]}</td><td class="num">${row[1]}</td><td class="num">${row[2]}</td><td class="num">${row[3]}</td><td class="num">${row[4]}</td><td class="num">${row[5]}</td></tr>`;
+  });
+  document.getElementById('t1AgentFootnote').textContent = d.t1AgentFootnote || '';
+
+  const labels = d.t1Agents.map(r => r[0]);
+  const solved = d.t1Agents.map(r => r[1]);
+  const escT2 = d.t1Agents.map(r => r[2]);
+  const escT3 = d.t1Agents.map(r => r[3]);
+  t1AgentChart.data.labels = labels;
+  t1AgentChart.data.datasets[0].data = solved;
+  t1AgentChart.data.datasets[1].data = escT2;
+  t1AgentChart.data.datasets[2].data = escT3;
+  t1AgentChart.update();
+
+  const t2Table = document.getElementById('t2AgentTable');
+  t2Table.innerHTML = '<tr><th>Agent</th><th class="num">Received</th><th class="num">Solved</th><th class="num">→ T3</th><th class="num">Open</th></tr>';
+  d.t2Agents.forEach(row => {
+    t2Table.innerHTML += `<tr><td>${row[0]}</td><td class="num">${row[1]}</td><td class="num">${row[2]}</td><td class="num">${row[3]}</td><td class="num">${row[4]}</td></tr>`;
+  });
+  t2Table.innerHTML += `<tr class="total-row"><td>Total</td><td class="num">${d.t2Total[0]}</td><td class="num">${d.t2Total[1]}</td><td class="num">${d.t2Total[2]}</td><td class="num">${d.t2Total[3]}</td></tr>`;
+  document.getElementById('t2AgentFootnote').textContent = d.t2AgentFootnote || '';
+
+  const t2Labels = d.t2Agents.map(r => r[0]);
+  const t2Solved = d.t2Agents.map(r => r[2]);
+  const t2Esc = d.t2Agents.map(r => r[3]);
+  const t2Open = d.t2Agents.map(r => r[4]);
+  t2AgentChart.data.labels = t2Labels;
+  t2AgentChart.data.datasets[0].data = t2Solved;
+  t2AgentChart.data.datasets[1].data = t2Esc;
+  t2AgentChart.data.datasets[2].data = t2Open;
+  t2AgentChart.update();
 }
 
 function renderMonth(key) {
