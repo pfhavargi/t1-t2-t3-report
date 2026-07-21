@@ -75,6 +75,7 @@
 
   <div class="header-row">
     <div>
+      <div style="display:flex;flex-wrap:wrap;gap:0;margin-bottom:18px;"><a href="../../" style="display:inline-block;padding:6px 12px;border-radius:6px;font-size:12px;text-decoration:none;margin-right:4px;color:#9A9998;background:#292928;border:1px solid #393838;">Home</a><a href="../t1-t2-t3/" style="display:inline-block;padding:6px 12px;border-radius:6px;font-size:12px;text-decoration:none;margin-right:4px;color:#9A9998;background:#292928;border:1px solid #393838;">T1 → T2 → T3</a><a href="../issue-types/" style="display:inline-block;padding:6px 12px;border-radius:6px;font-size:12px;text-decoration:none;margin-right:4px;background:#AC75FF;color:#1A1919;font-weight:600;">Issue Types</a><a href="../cse-individual/" style="display:inline-block;padding:6px 12px;border-radius:6px;font-size:12px;text-decoration:none;margin-right:4px;color:#9A9998;background:#292928;border:1px solid #393838;">CSE Individual</a><a href="../okr/" style="display:inline-block;padding:6px 12px;border-radius:6px;font-size:12px;text-decoration:none;margin-right:4px;color:#9A9998;background:#292928;border:1px solid #393838;">OKR</a></div>
       <p class="eyebrow">Support Signals</p>
       <h1>Issue Types Analysis</h1>
       <p class="subtitle" id="subtitleText">Top 5 issue types — Week of Jun 28 – Jul 4, 2026</p>
@@ -85,6 +86,7 @@
         <button id="viewWeekBtn" class="view-btn active">Week</button>
         <button id="viewMonthBtn" class="view-btn">Month</button>
         <button id="viewQuarterBtn" class="view-btn">Quarter</button>
+        <button id="viewYtdBtn" class="view-btn">Feb–Till Date</button>
       </div>
       <select id="periodSelect"></select>
     </div>
@@ -112,7 +114,7 @@
 
   <p class="footnote" id="methodologyNote"></p>
 
-  <p class="source-caption">Source: Salesforce Case (Microservices__c, IsClosed, Categories__c). Generated Jul 7, 2026.</p>
+  <p class="source-caption">Source: Salesforce Case (Microservices__c, IsClosed, Categories__c), pulled via SOQL while the Salesforce connector was live. Data pulled Jul 7, 2026. Page last edited Jul 20, 2026 (nav update only — underlying data not refreshed since Jul 7).</p>
 
 </div>
 
@@ -178,9 +180,23 @@ const periodData = {
       ["Key Change Requests", 110, "8.1%", "85 customers", "Limit-increase requests, consistent with other periods."],
       ["CMS - CMA", 84, "6.2%", "66 customers", "Management API / content-model schema issues, consistent with other periods."]
     ]
+  },
+  ytd: {
+    label: "Feb 1 \u2013 Jul 20, 2026 (Feb\u2013Till Date)",
+    subtitle: "Top 5 issue types — Feb 1 – Jul 20, 2026 (year to date)",
+    total: 2429,
+    topIssue: "CMS - UI",
+    topPct: 31.4,
+    issues: [
+      ["CMS - UI", 762, "31.4%", "275 customers", "The single largest issue category all year, by a wide margin \u2014 UI bugs, blank/loading screens, Live Preview failures, and workflow issues, consistent across every week/month/quarter view in this report."],
+      ["AUTH", 265, "10.9%", "143 customers", "Login/SSO/access issues \u2014 a standing structural theme, not a one-period blip, affecting a very broad set of customers all year."],
+      ["CMS - CDA(Rest)", 198, "8.2%", "111 customers", "Content Delivery API reliability issues (latency, 404s, locale fallback) at a steady rate throughout the year."],
+      ["Key Change Requests", 198, "8.2%", "132 customers", "Limit-increase requests \u2014 consistent volume across every period measured."],
+      ["CMS - CMA", 155, "6.4%", "106 customers", "Management API / content-model schema issues, consistent with every other period."]
+    ]
   }
 };
-const periodOrder = { week: ['week'], month: ['month'], quarter: ['q2fy26', 'q1fy26'] };
+const periodOrder = { week: ['week'], month: ['month'], quarter: ['q2fy26', 'q1fy26'], ytd: ['ytd'] };
 let currentView = 'week';
 
 // ---------- overall case summary (Total / Customers / Open / Resolved), Spam excluded ----------
@@ -188,7 +204,8 @@ const caseSummary = {
   week: { total: 107, customers: 69, open: 48, resolved: 59, label: "Week of Jun 28 \u2013 Jul 4" },
   month: { total: 490, customers: 208, open: 115, resolved: 375, label: "June 2026" },
   q1fy26: { total: 1511, customers: 373, open: 157, resolved: 1354, label: "Q1 FY26 (Feb\u2013Apr)" },
-  q2fy26: { total: 1114, customers: 338, open: 250, resolved: 864, label: "Q2 FY26 (May\u2013Jul, in progress)" }
+  q2fy26: { total: 1114, customers: 338, open: 250, resolved: 864, label: "Q2 FY26 (May\u2013Jul, in progress)" },
+  ytd: { total: 2852, customers: 494, open: 423, resolved: 2429, label: "Feb 1 \u2013 Jul 20, 2026 (Feb\u2013Till Date)" }
 };
 
 // ---------- populate period dropdown ----------
@@ -257,7 +274,7 @@ function renderPeriod(key) {
   const note = document.getElementById('methodologyNote');
   let noteText = 'The Total/Customers/Open/Resolved band above covers all non-Spam cases created in the period. The Top 5 table below is scoped to closed cases only (Solved/Closed), since that\'s what a completed-issue pattern analysis needs \u2014 open cases haven\'t reached a resolution yet. Issue Type = Microservices field on the Case object.';
   if (d.partial) noteText += ' This period is still in progress \u2014 volumes and rankings may shift before it closes.';
-  if (key === 'q1fy26' || key === 'q2fy26') noteText += ' Key Signals for quarterly view describe the consistent theme observed across the underlying weekly/monthly detail, not a fresh case-by-case review for the full quarter.';
+  if (key === 'q1fy26' || key === 'q2fy26' || key === 'ytd') noteText += ' Key Signals for this view describe the consistent theme observed across the underlying weekly/monthly detail, not a fresh case-by-case review for the full period.';
   note.textContent = noteText;
 }
 
@@ -265,12 +282,14 @@ function renderPeriod(key) {
 const viewWeekBtn = document.getElementById('viewWeekBtn');
 const viewMonthBtn = document.getElementById('viewMonthBtn');
 const viewQuarterBtn = document.getElementById('viewQuarterBtn');
+const viewYtdBtn = document.getElementById('viewYtdBtn');
 
 function setView(view) {
   currentView = view;
   viewWeekBtn.classList.toggle('active', view === 'week');
   viewMonthBtn.classList.toggle('active', view === 'month');
   viewQuarterBtn.classList.toggle('active', view === 'quarter');
+  viewYtdBtn.classList.toggle('active', view === 'ytd');
   populatePeriodDropdown(view);
   renderPeriod(periodOrder[view][0]);
 }
@@ -278,6 +297,7 @@ function setView(view) {
 viewWeekBtn.addEventListener('click', () => setView('week'));
 viewMonthBtn.addEventListener('click', () => setView('month'));
 viewQuarterBtn.addEventListener('click', () => setView('quarter'));
+viewYtdBtn.addEventListener('click', () => setView('ytd'));
 periodSel.addEventListener('change', (e) => renderPeriod(e.target.value));
 
 // ---------- init ----------
