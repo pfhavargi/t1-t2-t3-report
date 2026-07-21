@@ -79,6 +79,7 @@
         <button id="viewWeekBtn" class="toggle-btn">Week</button>
         <button id="viewMonthBtn" class="toggle-btn active">Month</button>
         <button id="viewQuarterBtn" class="toggle-btn">Quarter</button>
+        <button id="viewYtdBtn" class="toggle-btn">Feb–Till Date</button>
       </div>
     </div>
     <div class="picker-block">
@@ -259,6 +260,19 @@ const periodData = {
       q2fy26: {"Amruth Lakshman":7.01,"Lavanya TU":4.94,"Manoj GH":4.35,"Nidhi Mahankali":3.84,"Karthik Haralayya":2.56,"Abdul Rahaman":8.04,"Vishakha K":5.98,"Nesara Nagaraju":3.12,"Sobiya Khan":5.37,"Vinodakumara A":6.04,"Anmol Tanwer":4.99,"Manjunath N":3.48},
       q1fy26: {"Amruth Lakshman":7.36,"Lavanya TU":6.07,"Manoj GH":4.86,"Nidhi Mahankali":3.84,"Karthik Haralayya":4.01,"Abdul Rahaman":5.51,"Vishakha K":6.43,"Nesara Nagaraju":3.55,"Sobiya Khan":3.57,"Vinodakumara A":8.08,"Anmol Tanwer":4.77,"Manjunath N":3.77}
     }
+  },
+  ytd: {
+    order: ['ytd'],
+    labels: {ytd: "Feb 1 - Jul 20, 2026 (Feb-Till Date)"},
+    t1: {
+      ytd: {"Nesara Nagaraju":[220,100,0,320,68.8],"Karthik Haralayya":[197,105,1,303,65.0],"Lavanya TU":[168,65,6,239,70.3],"Manjunath N":[176,55,7,238,73.9],"Nidhi Mahankali":[161,68,7,236,68.2],"Manoj GH":[149,79,5,233,63.9],"Amruth Lakshman":[154,75,2,231,66.7],"Vishakha K":[151,61,4,216,69.9],"Abdul Rahaman":[140,47,12,199,70.4],"Vinodakumara A":[123,72,1,196,62.8],"Anmol Tanwer":[129,54,7,190,67.9],"Sobiya Khan":[58,16,16,90,64.4]}
+    },
+    t2: {
+      ytd: {"Kunal Chavan":[168,15,144,9],"Chetan Salvi":[159,52,101,6],"Selwyn Moses":[150,26,120,4],"Abhay Kumar":[149,29,118,2],"Priyanka Dubey":[139,44,93,2]}
+    },
+    resTime: {
+      ytd: {"Karthik Haralayya":3.18,"Nesara Nagaraju":3.27,"Manjunath N":3.83,"Nidhi Mahankali":3.68,"Anmol Tanwer":4.79,"Manoj GH":4.82,"Lavanya TU":5.84,"Sobiya Khan":5.2,"Abdul Rahaman":5.96,"Vishakha K":6.18,"Amruth Lakshman":6.63,"Vinodakumara A":6.81}
+    }
   }
 };
 
@@ -269,6 +283,7 @@ let personalChart = null, rankChartInst = null;
 const viewWeekBtn = document.getElementById('viewWeekBtn');
 const viewMonthBtn = document.getElementById('viewMonthBtn');
 const viewQuarterBtn = document.getElementById('viewQuarterBtn');
+const viewYtdBtn = document.getElementById('viewYtdBtn');
 const tierT1Btn = document.getElementById('tierT1Btn');
 const tierT2Btn = document.getElementById('tierT2Btn');
 const periodSelect = document.getElementById('periodSelect');
@@ -333,6 +348,7 @@ function setView(view) {
   viewWeekBtn.classList.toggle('active', view === 'week');
   viewMonthBtn.classList.toggle('active', view === 'month');
   viewQuarterBtn.classList.toggle('active', view === 'quarter');
+  viewYtdBtn.classList.toggle('active', view === 'ytd');
   populatePeriodSelect();
   populateAgentSelect();
   renderAll();
@@ -347,6 +363,7 @@ function setTier(tier) {
 viewWeekBtn.addEventListener('click', () => setView('week'));
 viewMonthBtn.addEventListener('click', () => setView('month'));
 viewQuarterBtn.addEventListener('click', () => setView('quarter'));
+viewYtdBtn.addEventListener('click', () => setView('ytd'));
 tierT1Btn.addEventListener('click', () => setTier('T1'));
 tierT2Btn.addEventListener('click', () => setTier('T2'));
 periodSelect.addEventListener('change', () => { populateAgentSelect(); renderAll(); });
