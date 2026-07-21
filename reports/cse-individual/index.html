@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>T1 → T2 → T3 Escalation Report (Live)</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: #1A1919;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: #F5F5F4;
+    padding: 32px 24px 64px;
+  }
+  .container { max-width: 1180px; margin: 0 auto; }
+  .header-row { display: flex; justify-content: space-between; align-items: flex-end; gap: 20px; flex-wrap: wrap; margin-bottom: 28px; }
+  .eyebrow { color: #AC75FF; font-size: 12px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; margin: 0 0 8px; }
+  h1 { font-size: 28px; font-weight: 500; margin: 0 0 6px; color: #F5F5F4; }
+  .subtitle { color: #9A9998; font-size: 14px; margin: 0; }
+  .live-badge {
+    display: inline-flex; align-items: center; gap: 6px; background: #1E3B2A; color: #7FE08C;
+    font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 20px; margin-left: 10px;
+  }
+  .live-dot { width: 6px; height: 6px; border-radius: 50%; background: #7FE08C; animation: pulse 1.5s infinite; }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+  select#periodSelect {
+    background: #292928; color: #F5F5F4; border: 1px solid #393838; border-radius: 8px;
+    padding: 10px 14px; font-size: 14px; font-family: inherit; min-width: 200px; cursor: pointer;
+  }
+
+  .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin: 0 0 28px; }
+  .kpi-card { background: #292928; border-radius: 12px; padding: 18px 20px; }
+  .kpi-label { color: #9A9998; font-size: 12px; margin: 0 0 8px; text-transform: uppercase; letter-spacing: 0.03em; }
+  .kpi-value { font-size: 28px; font-weight: 500; margin: 0; color: #F5F5F4; }
+  .kpi-pct { font-size: 16px; color: #899CFA; }
+  .kpi-sub { color: #797777; font-size: 12px; margin: 6px 0 0; }
+
+  .card { background: #292928; border-radius: 12px; padding: 20px 24px; }
+  .section-title { font-size: 16px; font-weight: 500; margin: 0 0 4px; color: #F5F5F4; }
+  .section-desc { color: #9A9998; font-size: 13px; margin: 0 0 18px; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { text-align: left; padding: 9px 10px; border-bottom: 1px solid #393838; }
+  th { color: #9A9998; font-weight: 500; font-size: 11px; text-transform: uppercase; }
+  td.num, th.num { text-align: right; }
+
+  .status-box {
+    background: #292928; border-radius: 12px; padding: 40px; text-align: center;
+    color: #9A9998; font-size: 14px;
+  }
+  .error-box {
+    background: #3A2222; border: 1px solid #5A3232; border-radius: 12px; padding: 20px 24px;
+    color: #FF8A8A; font-size: 13px; line-height: 1.6;
+  }
+  .footnote { color: #484747; font-size: 11px; margin-top: 14px; line-height: 1.6; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header-row">
+    <div>
+      <p class="eyebrow">T1 Support Performance</p>
+      <h1>T1 → T2 → T3 Escalation Report <span class="live-badge"><span class="live-dot"></span>LIVE</span></h1>
+      <p class="subtitle" id="subtitleText">Loading live data from Salesforce...</p>
+    </div>
+    <select id="periodSelect">
+      <option value="last_week">Last Week</option>
+      <option value="this_month">This Month (partial)</option>
+      <option value="last_month">Last Month</option>
+    </select>
+  </div>
+
+  <div id="content">
+    <div class="status-box">Connecting to Salesforce...</div>
+  </div>
+
+  <p class="footnote">
+    This page calls a Contentstack Launch Cloud Function (<code>/escalation-data</code>) on load,
+    which authenticates to Salesforce and runs live SOQL queries — data shown is current as of
+    the moment this page was opened (cached at the edge for up to 5 minutes). This is a live
+    subset (KPIs + T1 agent solve/escalate table) of the full static report — month-over-month
+    trends, resolution time, CSAT, and T2 detail are not yet part of the live version.
+  </p>
+
+</div>
+
+<script>
+const periodSelect = document.getElementById('periodSelect');
+const content = document.getElementById('content');
+const subtitleText = document.getElementById('subtitleText');
+
+async function loadData(period) {
+  content.innerHTML = '<div class="status-box">Fetching live data from Salesforce…</div>';
+  try {
+    const resp = await fetch(`/escalation-data?period=${encodeURIComponent(period)}`);
+    const data = await resp.json();
+    if (!resp.ok || data.error) {
+      throw new Error(data.error || `Request failed (${resp.status})`);
+    }
+    render(data);
+  } catch (err) {
+    content.innerHTML = `<div class="error-box">
+      <strong>Couldn't load live data.</strong><br>
+      ${err.message}<br><br>
+      Common causes: the Cloud Function isn't deployed yet, environment variables
+      (SF_CLIENT_ID / SF_CLIENT_SECRET / SF_REFRESH_TOKEN / SF_LOGIN_URL) aren't set in this
+      Launch environment, or the Salesforce refresh token has expired and needs regenerating.
+    </div>`;
+    subtitleText.textContent = 'Live data unavailable';
+  }
+}
+
+function render(data) {
+  const { kpi, t1Agents, generatedAt } = data;
+  const generatedTime = new Date(generatedAt).toLocaleString();
+  subtitleText.textContent = `Live as of ${generatedTime}`;
+
+  let html = `
+    <div class="kpi-row">
+      <div class="kpi-card">
+        <p class="kpi-label">Total tickets</p>
+        <p class="kpi-value">${kpi.total}</p>
+      </div>
+      <div class="kpi-card">
+        <p class="kpi-label">Resolved by T1</p>
+        <p class="kpi-value">${kpi.t1} <span class="kpi-pct">${kpi.t1Pct}%</span></p>
+      </div>
+      <div class="kpi-card">
+        <p class="kpi-label">Escalated to T2</p>
+        <p class="kpi-value">${kpi.t2} <span class="kpi-pct">${kpi.t2Pct}%</span></p>
+      </div>
+      <div class="kpi-card">
+        <p class="kpi-label">Escalated to T3</p>
+        <p class="kpi-value">${kpi.t3} <span class="kpi-pct">${kpi.t3Pct}%</span></p>
+      </div>
+    </div>
+
+    <div class="card">
+      <p class="section-title">T1 agents: solved vs escalated</p>
+      <p class="section-desc">T1 solve rate: ${kpi.t1Solved} of ${kpi.t1} tickets Solved/Closed (${kpi.t1SolvedPct}%). JIRA-Key-corrected — cases with a linked JIRA ticket count as escalated to T3, not solved.</p>
+      <table>
+        <tr><th>Agent</th><th class="num">Solved</th><th class="num">Esc. T2</th><th class="num">Esc. T3 (direct)</th><th class="num">Total</th><th class="num">Solve %</th></tr>
+        ${t1Agents.map(a => `<tr>
+          <td>${a.name}</td><td class="num">${a.solved}</td><td class="num">${a.esc2}</td>
+          <td class="num">${a.esc3}</td><td class="num">${a.total}</td><td class="num">${a.solvePct}%</td>
+        </tr>`).join('')}
+      </table>
+    </div>
+  `;
+  content.innerHTML = html;
+}
+
+periodSelect.addEventListener('change', (e) => loadData(e.target.value));
+loadData('last_week');
+</script>
+</body>
+</html>
